@@ -259,21 +259,6 @@ export async function loadMoodboard(token) {
     } catch (e) {
       logger.warn('loadMoodboard (mw_) gagal:', e?.message || e)
     }
-    // Tabel LEGACY (tanpa prefix) — data dari build lama sebelum migrasi prefix
-    try {
-      const { data: legacy, error: legacyErr } = await client
-        .from('moodboards')
-        .select('*')
-        .eq('project_id', token)
-        .maybeSingle()
-      if (legacyErr) throw legacyErr
-      if (legacy) {
-        logger.info('loadMoodboard: data dari tabel legacy (moodboards)', { token })
-        return legacy
-      }
-    } catch (e) {
-      logger.warn('loadMoodboard legacy gagal:', e?.message || e)
-    }
     return null
   }
   const p = demoProjects()[token]

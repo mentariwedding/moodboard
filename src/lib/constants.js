@@ -26,6 +26,22 @@ export const SECTIONS = [
 
 export const SECTION_IDS = SECTIONS.map((s) => s.id)
 
+// Bab wizard — memberi rasa 'bercerita' alih-alih 13 langkah
+export const WIZARD_CHAPTERS = [
+  { id: 'dasar', label: 'Tentang Kalian', sub: 'cerita & warna kalian', icon: 'heart' },
+  { id: 'hari', label: 'Hari Bahagia', sub: 'dekorasi, acara & musik', icon: 'ceremony' },
+  { id: 'detail', label: 'Detail & Sentuhan', sub: 'undangan, foto & prioritas', icon: 'gem' },
+  { id: 'final', label: 'Sentuhan Akhir', sub: 'hal yang dihindari & referensi', icon: 'magic' },
+]
+
+// Peta seksi → bab (index)
+export const CHAPTER_OF_SECTION = {
+  couple: 0, vibe: 0, colors: 0,
+  decor: 1, look: 1, ceremony: 1, playlist: 1, feast: 1,
+  stationery: 2, photo: 2, priorities: 2,
+  avoid: 3, references: 3,
+}
+
 export const THEMES = [
   { id: 'garden', label: 'Garden', sub: 'hijau segar · romantis · outdoor', img: '/themes/garden.jpg' },
   { id: 'rustic', label: 'Rustic', sub: 'kayu hangat · natural · cozy', img: '/themes/rustic.jpg' },

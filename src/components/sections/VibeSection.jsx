@@ -1,7 +1,21 @@
 import { THEMES, VIBES } from '../../lib/constants'
+import Icon from '../../lib/icons'
+
+// Palet & elemen khas per tema — untuk preview "hidup" saat dipilih
+const THEME_LIVE = {
+  garden: { colors: ['#8A9B83', '#F4DADB', '#B08D57'], tags: ['Floral arch', 'String light', 'Greenery'] },
+  rustic: { colors: ['#6B4F3A', '#C9BDA4', '#B08D57'], tags: ['Wood', 'Burlap', 'Mason jar'] },
+  minimalist: { colors: ['#2B2622', '#E8E4DE', '#B08D57'], tags: ['Clean lines', 'Negative space', 'White'] },
+  classic: { colors: ['#B08D57', '#2B2622', '#FFFFFF'], tags: ['Chandelier', 'Tall centerpiece', 'Ballroom'] },
+  vintage: { colors: ['#E8B4B8', '#C9BDA4', '#7A6C5D'], tags: ['Lace', 'Antique', 'Pastel'] },
+  bohemian: { colors: ['#C97B5D', '#6B4F3A', '#E8C39E'], tags: ['Macrame', 'Pampas', 'Rug'] },
+  tropical: { colors: ['#3F5242', '#F2A65A', '#5B7B8A'], tags: ['Monstera', 'Palm', 'Rattan'] },
+  royal: { colors: ['#8C1F28', '#B08D57', '#2B2622'], tags: ['Gold', 'Velvet', 'Crystal'] },
+  modernmuslim: { colors: ['#B08D57', '#F7F2E9', '#2B2622'], tags: ['Geometric', 'Modest', 'Elegant'] },
+  javanese: { colors: ['#6B4F3A', '#B08D57', '#C9BDA4'], tags: ['Batik', 'Pelaminan', 'Teak'] },
+}
 import { Field, TextArea } from '../ui'
 import { ChipGroup, Note } from './common'
-import Icon from '../../lib/icons'
 
 export default function VibeSection({ data, update }) {
   const toggleTheme = (id) => {
@@ -44,6 +58,37 @@ export default function VibeSection({ data, update }) {
           })}
         </div>
       </div>
+
+      {/* Preview tema hidup — muncul saat ada tema dipilih */}
+      {(data.themes || []).length > 0 && (
+        <div className="space-y-3">
+          {(data.themes || []).map((tid) => {
+            const live = THEME_LIVE[tid]
+            const t = THEMES.find((x) => x.id === tid)
+            if (!live || !t) return null
+            return (
+              <div key={tid} className="rounded-2xl border border-gold/25 bg-white/85 p-4 shadow-card">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-ink">
+                    <Icon name="wand" className="mr-1.5 inline h-3.5 w-3.5 text-gold" />
+                    {t.label} — sekilas konsep
+                  </p>
+                </div>
+                <div className="mt-2.5 flex items-center gap-1.5">
+                  {live.colors.map((c) => (
+                    <span key={c} className="h-6 w-6 rounded-full border border-ink/10" style={{ background: c }} title={c} />
+                  ))}
+                  <span className="ml-2 flex flex-wrap gap-1.5">
+                    {live.tags.map((tag) => (
+                      <span key={tag} className="rounded-full bg-cream px-2.5 py-0.5 text-[10px] text-stone">{tag}</span>
+                    ))}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       <div>
         <Field label="Suasana yang diinginkan — pilih beberapa" hint="Mood & atmosphere you want on the day">

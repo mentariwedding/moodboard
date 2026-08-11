@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { SECTIONS } from '../lib/constants'
+import { SECTIONS, WIZARD_CHAPTERS, CHAPTER_OF_SECTION } from '../lib/constants'
 import { daysUntil, filledSections } from '../lib/utils'
 import { ProgressBar, Spinner } from './ui'
 import CommentsBlock from './CommentsBlock'
@@ -25,6 +25,11 @@ import ReferencesSection from './sections/ReferencesSection'
 
 function stepLabel(idx) {
   return String(idx + 1).padStart(2, '0')
+}
+
+// Bab aktif untuk seksi tertentu
+function chapterOf(idx) {
+  return CHAPTER_OF_SECTION[SECTIONS[idx].id] ?? 0
 }
 
 export default function WizardShell({
@@ -109,7 +114,7 @@ export default function WizardShell({
   const pctAnim = useCountUp(pct)
 
   return (
-    <div ref={scrollRef} className="min-h-screen bg-ivory">
+    <div ref={scrollRef} className="min-h-screen bg-wedding-pattern bg-ivory">
       {/* Top bar */}
       <header className="sticky top-0 z-40 border-b border-ink/5 bg-ivory/90 backdrop-blur">
         <div className="mx-auto max-w-3xl px-4 py-3">
@@ -127,7 +132,7 @@ export default function WizardShell({
                 </p>
               </div>
               <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-stone">
-                {stepLabel(step)} of {stepLabel(total)} · {pctAnim}%
+                {WIZARD_CHAPTERS[chapterOf(step)].label} · {stepLabel(step)} of {stepLabel(total)} · {pctAnim}%
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -172,7 +177,29 @@ export default function WizardShell({
               </button>
             </div>
           </div>
-          <ProgressBar value={pct} accent={accent} className="mt-2.5" />
+          {/* Jalan setapak perjalanan antar bab */}
+          <div className="mt-3">
+            <div className="flex items-center gap-1">
+              {WIZARD_CHAPTERS.map((ch, i) => {
+                const chDone = chapterOf(step) > i
+                const chActive = chapterOf(step) === i
+                return (
+                  <div key={ch.id} className="flex flex-1 items-center gap-1">
+                    {i > 0 && <div className={`journey-line ${chDone ? 'done' : ''}`} />}
+                    <div className={`journey-step ${chDone ? 'done' : ''} ${chActive ? 'active' : ''}`}>
+                      <span className="journey-dot">
+                        <Icon name={chDone ? 'check' : ch.icon} className="h-3 w-3" />
+                      </span>
+                      <span className="journey-label hidden sm:block">{ch.label}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <p className="mt-1.5 text-center text-[10px] uppercase tracking-[0.2em] text-stone sm:hidden">
+              {WIZARD_CHAPTERS[chapterOf(step)].label}
+            </p>
+          </div>
         </div>
       </header>
 

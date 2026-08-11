@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import { isSupabaseConfigured } from './lib/supabase'
-import { seedDemoIfNeeded } from './lib/seed'
+import { seedDemoIfNeeded, seedDemoToSupabase } from './lib/seed'
 import { Spinner } from './components/ui'
 import ErrorBoundary from './components/ErrorBoundary'
 import { logger, initDebugPanel } from './lib/debug'
@@ -12,7 +12,12 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const MoodboardPage = lazy(() => import('./pages/MoodboardPage'))
 const CoupleLandingPage = lazy(() => import('./pages/CoupleLandingPage'))
 
-if (!isSupabaseConfigured) seedDemoIfNeeded()
+if (!isSupabaseConfigured) {
+  seedDemoIfNeeded()
+} else {
+  // Mode Supabase: pastikan proyek contoh 'demo' ada di database
+  seedDemoToSupabase()
+}
 
 logger.info('App dimulai', { mode: isSupabaseConfigured ? 'supabase' : 'demo', ua: navigator.userAgent.slice(0, 80) })
 initDebugPanel()

@@ -50,7 +50,7 @@ export default function AccessGate({ project, onUnlock }) {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ivory px-4 py-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-wedding-pattern bg-ivory px-4 py-10">
       <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-goldlight/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-blush/20 blur-3xl" />
       <Petals count={10} />

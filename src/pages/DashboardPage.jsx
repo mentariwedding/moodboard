@@ -993,7 +993,7 @@ export default function DashboardPage() {
 
   if (projects === null) {
     return (
-      <div className="min-h-screen bg-ivory">
+      <div className="min-h-screen bg-wedding-pattern bg-ivory">
         <header className="border-b border-ink/5 bg-ivory/90">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
             <Skeleton className="h-9 w-44" />
