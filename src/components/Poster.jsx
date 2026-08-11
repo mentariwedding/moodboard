@@ -4,6 +4,7 @@ import { THEMES } from '../lib/constants'
 import { computeProgress, formatDate } from '../lib/utils'
 import Icon from '../lib/icons'
 import Monogram from './Monogram'
+import { captureElement } from '../lib/capture'
 
 /** Poster ringkasan visual 1080px — dibangun di belakang layar, di-download sebagai PNG. */
 export default function Poster({ project, data, id }) {
@@ -127,26 +128,9 @@ export default function Poster({ project, data, id }) {
 }
 
 export async function downloadPoster(el) {
-  let html2canvas
   try {
-    ;({ default: html2canvas } = await import('html2canvas'))
+    await captureElement(el, { filename: 'moodboard-poster.png', backgroundColor: '#FBF8F4', scale: 1.5 })
   } catch (e) {
-    throw new Error('Library html2canvas belum terpasang. Jalankan "npm install" lalu coba lagi.')
+    throw new Error('Gagal membuat poster: ' + (e?.message || e))
   }
-  try {
-    if (document.fonts?.ready) await document.fonts.ready
-  } catch {}
-  const canvas = await html2canvas(el, {
-    scale: 0.7,
-    useCORS: true,
-    backgroundColor: '#FBF8F4',
-    // Cegah terpotong untuk elemen yang lebih tinggi dari layar
-    windowWidth: el.scrollWidth,
-    windowHeight: el.scrollHeight,
-    logging: false,
-  })
-  const a = document.createElement('a')
-  a.download = 'moodboard-poster.png'
-  a.href = canvas.toDataURL('image/png')
-  a.click()
 }

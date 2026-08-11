@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { SECTIONS, THEMES } from '../lib/constants'
 import { formatDate, isSectionFilled, daysUntil, makeIcs, downloadIcs, slugify } from '../lib/utils'
+import { captureElement } from '../lib/capture'
 import Icon from '../lib/icons'
 import useAccent from '../lib/useAccent'
 import Confetti from './Confetti'
@@ -47,26 +48,9 @@ export default function SubmittedScreen({ data, project, onBack }) {
 
   const downloadCard = async () => {
     try {
-      const { default: html2canvas } = await import('html2canvas')
-      // Tunggu font web selesai dimuat supaya teks tidak terpotong/aneh
-      try {
-        if (document.fonts?.ready) await document.fonts.ready
-      } catch {}
       const el = cardRef.current
       if (!el) return
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#FBF8F4',
-        // Penting: tanpa ini elemen yang lebih tinggi dari layar akan terpotong
-        windowWidth: el.scrollWidth,
-        windowHeight: el.scrollHeight,
-        logging: false,
-      })
-      const a = document.createElement('a')
-      a.download = 'moodboard-saya.png'
-      a.href = canvas.toDataURL('image/png')
-      a.click()
+      await captureElement(el, { filename: 'moodboard-saya.png', backgroundColor: '#FBF8F4', scale: 2 })
     } catch (e) {
       alert('Gagal membuat gambar: ' + e.message)
     }

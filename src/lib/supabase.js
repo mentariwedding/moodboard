@@ -22,13 +22,16 @@ export const supabase = isSupabaseConfigured
  * Client dengan header token proyek — dipakai untuk operasi sisi CLIENT
  * (baca/simpan moodboard, upload foto) sesuai aturan RLS token.
  *
- * PENTING: storageKey dibuat unik per token supaya TIDAK bentrok dengan
- * client utama (WO login) — menghindari warning "Multiple GoTrueClient
- * instances" & perilaku tak terduga pada sesi login.
+ * Instance di-cache per token (cuma dibuat sekali) supaya tidak muncul
+ * warning "Multiple GoTrueClient instances" — storageKey unik per token
+ * juga mencegah bentrok dengan client utama (sesi login WO).
  */
+const anonClients = new Map()
+
 export function clientSupabaseWithToken(token) {
   if (!supabase) return null
-  return createClient(url, key, {
+  if (anonClients.has(token)) return anonClients.get(token)
+  const client = createClient(url, key, {
     auth: {
       persistSession: false,
       storageKey: `mw-anon-${token}`,
@@ -37,4 +40,6 @@ export function clientSupabaseWithToken(token) {
     },
     global: { headers: { 'x-project-token': token } },
   })
+  anonClients.set(token, client)
+  return client
 }
