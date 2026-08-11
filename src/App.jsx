@@ -34,7 +34,9 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/mb/:token" element={<MoodboardPage />} />
+          <Route path="/mb/:slug/:token" element={<MoodboardPage />} />
           <Route path="/couple/:token" element={<CoupleLandingPage />} />
+          <Route path="/couple/:slug/:token" element={<CoupleLandingPage />} />
           <Route path="/demo" element={<Navigate to="/mb/demo" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

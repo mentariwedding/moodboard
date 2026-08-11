@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getProjectByToken, loadMoodboard } from '../lib/api'
 import { THEMES, PRIORITY_ITEMS } from '../lib/constants'
-import { mergeMoodboards, formatDate, daysUntil, linkType } from '../lib/utils'
+import { mergeMoodboards, formatDate, daysUntil, linkType, slugify } from '../lib/utils'
 import { Spinner, Skeleton } from '../components/ui'
 import Icon from '../lib/icons'
 import useAccent from '../lib/useAccent'
 import Monogram from '../components/Monogram'
+import MediaPlayer from '../components/MediaPlayer'
 
 /**
  * Halaman pasangan — mini wedding website publik.
@@ -185,7 +186,7 @@ export default function CoupleLandingPage() {
                 <div key={i} className="flex items-center gap-3 rounded-2xl border border-ink/5 bg-white px-4 py-3 shadow-card">
                   <span className="shrink-0 rounded-full bg-cream px-2.5 py-1 text-[10px] text-stone">{x.moment}</span>
                   <span className="min-w-0 flex-1 truncate text-sm text-ink">{x.title || x.url}</span>
-                  {x.url && <a href={x.url} target="_blank" rel="noreferrer" className="shrink-0 text-gold hover:opacity-80"><Icon name={linkType(x.url)} className="h-4 w-4" /></a>}
+                  {x.url && <span className="shrink-0"><MediaPlayer url={x.url} title={x.title} variant="modal" size="sm" /></span>}
                 </div>
               ))}
               {data.playlist.doNotPlay?.trim() && <p className="text-xs text-stone"><Icon name="avoid" className="mr-1 inline h-3 w-3 text-rose" />Jangan diputar: {data.playlist.doNotPlay}</p>}
@@ -208,7 +209,7 @@ export default function CoupleLandingPage() {
         {/* CTA */}
         <section className="text-center">
           <Link
-            to={`/mb/${token}`}
+            to={`/mb/${slugify(project.couple)}/${token}`}
             className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm font-medium text-white shadow-soft transition hover:opacity-90"
             style={{ background: 'var(--accent)' }}
           >

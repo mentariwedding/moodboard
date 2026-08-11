@@ -3,7 +3,7 @@ export default function Flourish({ className = '' }) {
   return (
     <svg
       viewBox="0 0 240 24"
-      className={`h-6 w-56 max-w-full text-gold ${className}`}
+      className={`mx-auto block h-6 w-56 max-w-full text-gold ${className}`}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.1"

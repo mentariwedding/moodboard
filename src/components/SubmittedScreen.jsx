@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { SECTIONS, THEMES } from '../lib/constants'
-import { formatDate, isSectionFilled, daysUntil } from '../lib/utils'
+import { formatDate, isSectionFilled, daysUntil, makeIcs, downloadIcs, slugify } from '../lib/utils'
 import Icon from '../lib/icons'
 import useAccent from '../lib/useAccent'
 import Confetti from './Confetti'
@@ -30,10 +30,39 @@ export default function SubmittedScreen({ data, project, onBack }) {
   const themeImgs = (data.vibe?.themes || []).map((t) => THEMES.find((x) => x.id === t)).filter(Boolean)
   const cardRef = useRef(null)
 
+  const saveCalendar = () => {
+    const wDate = couple.weddingDate
+    if (!wDate) { alert('Tanggal pernikahan belum diisi — isi dulu di seksi Data Pasangan ya.'); return }
+    downloadIcs(
+      `undangan-${slugify(name || 'pernikahan')}.ics`,
+      makeIcs({
+        summary: `${name || project?.couple} — Hari Pernikahan`,
+        date: wDate,
+        time: data.ceremony?.time || '',
+        location: couple.venue || '',
+        description: `Moodboard pernikahan kami bersama Mentari Wedding.`,
+      }),
+    )
+  }
+
   const downloadCard = async () => {
     try {
       const { default: html2canvas } = await import('html2canvas')
-      const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true, backgroundColor: '#FBF8F4' })
+      // Tunggu font web selesai dimuat supaya teks tidak terpotong/aneh
+      try {
+        if (document.fonts?.ready) await document.fonts.ready
+      } catch {}
+      const el = cardRef.current
+      if (!el) return
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#FBF8F4',
+        // Penting: tanpa ini elemen yang lebih tinggi dari layar akan terpotong
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight,
+        logging: false,
+      })
       const a = document.createElement('a')
       a.download = 'moodboard-saya.png'
       a.href = canvas.toDataURL('image/png')
@@ -125,6 +154,13 @@ export default function SubmittedScreen({ data, project, onBack }) {
             <Icon name="arrowLeft" className="h-3.5 w-3.5" /> Kembali mengisi / mengubah jawaban
           </button>
           <button
+            onClick={saveCalendar}
+            className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white px-6 py-2.5 text-sm font-medium text-[#8a6a3a] transition hover:bg-goldlight/20"
+            title="Simpan tanggal pernikahan ke kalender HP/Google"
+          >
+            <Icon name="calendar" className="h-4 w-4" /> Simpan ke Kalender
+          </button>
+          <button
             onClick={() => setViewFull(!viewFull)}
             className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white px-6 py-2.5 text-sm font-medium text-[#8a6a3a] transition hover:bg-goldlight/20"
           >
@@ -132,6 +168,13 @@ export default function SubmittedScreen({ data, project, onBack }) {
             {viewFull ? 'Tutup ringkasan' : 'Lihat ringkasan lengkap'}
           </button>
         </div>
+
+        {/* Ringkasan lengkap — muncul saat tombol diklik */}
+        {viewFull && (
+          <div className="mt-10 animate-[fadeIn_.3s_ease] border-t border-ink/10 pt-8 text-left">
+            <FinalSummary data={data} project={project} />
+          </div>
+        )}
       </div>
     </div>
   )

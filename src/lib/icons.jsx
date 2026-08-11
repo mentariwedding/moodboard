@@ -10,7 +10,7 @@ import {
   faChair, faSignsPost, faWineGlass, faChampagneGlasses, faBrush, faSignature,
   faEnvelope, faHeartCrack, faVideo, faFeather, faRing, faSeedling, faCameraRetro,
   faCircleInfo, faFaceLaughBeam, faUserGroup, faWandSparkles, faTable, faSheetPlastic,
-  faEye, faCirclePlus, faEnvelopeCircleCheck, faLock, faDice, faEyeSlash, faMagnifyingGlassPlus, faComment, faPaperPlane,
+  faEye, faCirclePlus, faEnvelopeCircleCheck, faLock, faDice, faEyeSlash, faMagnifyingGlassPlus, faComment, faPaperPlane, faPlay, faPause, faStop,
 } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp, faSpotify, faYoutube } from '@fortawesome/free-brands-svg-icons'
 
@@ -108,6 +108,9 @@ export const ICONS = {
   youtube: faYoutube,
   comment: faComment,
   send: faPaperPlane,
+  play: faPlay,
+  pause: faPause,
+  stop: faStop,
 }
 
 /** Komponen ikon seragam — warna mengikuti currentColor. */

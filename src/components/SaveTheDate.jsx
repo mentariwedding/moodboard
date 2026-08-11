@@ -1,4 +1,4 @@
-import { daysUntil, formatDate } from '../lib/utils'
+import { daysUntil, formatDate, makeIcs, downloadIcs, slugify } from '../lib/utils'
 import Icon from '../lib/icons'
 import Flourish from './Flourish'
 import Petals from './Petals'
@@ -25,7 +25,7 @@ export default function SaveTheDate({ project, who, onStart }) {
             <Icon name="brand" className="h-4 w-4 shrink-0" /> Mentari Wedding · The Wedding Moodboard
           </p>
 
-          <div className="mt-5">
+          <div className="mt-5 flex justify-center">
             <Flourish />
           </div>
 
@@ -59,6 +59,25 @@ export default function SaveTheDate({ project, who, onStart }) {
             style={{ background: 'var(--accent, #B08D57)' }}
           >
             <Icon name="heart" className="h-4 w-4" /> Mulai Isi Moodboard
+          </button>
+
+          <button
+            onClick={() => {
+              if (!project?.date) { alert('Tanggal pernikahan belum diatur — tanya WO kamu ya.'); return }
+              downloadIcs(
+                `undangan-${slugify(names)}.ics`,
+                makeIcs({
+                  summary: `${names} — Hari Pernikahan`,
+                  date: project.date,
+                  location: project.venue || '',
+                  description: `Undangan pernikahan ${names} bersama Mentari Wedding.`,
+                }),
+              )
+            }}
+            className="mt-3 inline-flex items-center gap-2 rounded-full border border-ink/15 px-5 py-2.5 text-xs text-stone transition hover:border-gold hover:text-gold"
+            title="Simpan tanggal ke kalender"
+          >
+            <Icon name="calendar" className="h-3.5 w-3.5" /> Ingatkan di kalender
           </button>
 
           {who && (

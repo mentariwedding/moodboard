@@ -133,7 +133,18 @@ export async function downloadPoster(el) {
   } catch (e) {
     throw new Error('Library html2canvas belum terpasang. Jalankan "npm install" lalu coba lagi.')
   }
-  const canvas = await html2canvas(el, { scale: 0.7, useCORS: true, backgroundColor: '#FBF8F4' })
+  try {
+    if (document.fonts?.ready) await document.fonts.ready
+  } catch {}
+  const canvas = await html2canvas(el, {
+    scale: 0.7,
+    useCORS: true,
+    backgroundColor: '#FBF8F4',
+    // Cegah terpotong untuk elemen yang lebih tinggi dari layar
+    windowWidth: el.scrollWidth,
+    windowHeight: el.scrollHeight,
+    logging: false,
+  })
   const a = document.createElement('a')
   a.download = 'moodboard-poster.png'
   a.href = canvas.toDataURL('image/png')

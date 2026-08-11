@@ -5,7 +5,7 @@ Aplikasi moodboard untuk wedding organizer: **WO membuat proyek → dapat link u
 ## Alur untuk istri (WO)
 
 1. Buka **Dashboard** → klik **＋ Proyek Baru** → isi nama pasangan (tanggal/venue opsional) + **No. WA client**. Bisa pilih **Mode isi bareng** untuk membuat 2 link (mempelai 1 & 2).
-2. Sistem membuat **link unik** untuk pasangan itu (cth: `.../mb/a1b2c3d4`).
+2. Sistem membuat **link unik** untuk pasangan itu — otomatis memuat nama pasangan supaya cantik: `.../mb/salsabila-raka/a1b2c3d4` (link lama tanpa nama tetap berfungsi).
 3. Klik **📲 Kirim via WA** — pesan (berisi link + kode akses) langsung terbuka ke **nomor WA client** yang sudah diisi.
 4. Client buka link di HP-nya: mengisi **13 seksi** moodboard dengan klik-klik, upload foto, tempel link Pinterest/IG. Bisa disimpan sebagai draft dan dilanjut kapan saja.
 5. Begitu client **Submit**, dashboard WO otomatis ter-update (real-time) → status **Selesai ✓** → lihat ringkasan rapi per kategori, foto referensi, atau data mentah (JSON).
@@ -25,7 +25,8 @@ Aplikasi moodboard untuk wedding organizer: **WO membuat proyek → dapat link u
 | 🖼️ **Lightbox galeri** | WO | Foto referensi di dashboard bisa diklik → tampil besar, navigasi panah/geser, dukungan keyboard (Esc/←/→) |
 | 💾 **Auto-save** | Client | Setiap perubahan tersimpan otomatis (~3 detik) dengan indikator "Tersimpan otomatis" — HP mati/ke-tutup pun data aman |
 | 💬 **Komentar per seksi** | Client + WO | WO tanya/beri arahan di seksi tertentu, client balas langsung di aplikasi — badge di stepper & kartu dashboard, semua keputusan tercatat rapi |
-| 🎵 **Playlist lagu** | Client + WO | Client tempel link Spotify/YouTube per momen (akad, resepsi, first dance…) — judul otomatis terisi, muncul di dashboard, print, & halaman pasangan |
+| 📅 **Simpan ke Kalender (ICS)** | Client + WO | Satu klik unduh file kalender dari tanggal pernikahan (bisa dengan jam mulai) — buka di Google Calendar / kalender HP |
+| 🎵 **Playlist lagu + Media Player** | Client + WO | Tempel link YouTube/Spotify → tombol **Putar** langsung di aplikasi (embed on-demand, thumbnail YouTube). Tersedia di wizard client, dashboard WO, dan halaman pasangan | Client tempel link Spotify/YouTube per momen (akad, resepsi, first dance…) — judul otomatis terisi, muncul di dashboard, print, & halaman pasangan |
 | 🎨 **UI ikut palet client** | Client | Aksen wizard (tombol, progress, badge) berubah warna mengikuti palet yang dipilih client — moodboard terasa "milik mereka" |
 | ✨ **Konsep otomatis** | Client + WO | Sistem merangkum semua jawaban jadi paragraf konsep yang bisa diedit client |
 | 🎊 **Halaman sukses + confetti** | Client | Setelah submit: confetti + kartu ringkasan estetik yang bisa di-download jadi gambar (buat story WA) |

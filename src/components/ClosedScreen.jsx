@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Icon from '../lib/icons'
+import { slugify } from '../lib/utils'
 import Flourish from './Flourish'
 import Petals from './Petals'
 
@@ -36,7 +37,7 @@ export default function ClosedScreen({ project, token }) {
           </p>
 
           <Link
-            to={`/couple/${token}`}
+            to={`/couple/${slugify(project?.couple)}/${token}`}
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-ink/15 px-8 py-3.5 text-sm font-medium text-ink transition hover:border-gold hover:text-gold"
           >
             <Icon name="heart" className="h-4 w-4 text-rose" /> Lihat halaman pasangan

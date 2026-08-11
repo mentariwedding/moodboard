@@ -11,9 +11,28 @@ export function makeToken() {
   return t
 }
 
-export function shareUrl(token, who) {
+/** Ubah nama pasangan jadi slug URL: 'Salsabila & Raka' → 'salsabila-raka'. */
+export function slugify(name = '') {
+  return String(name)
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40)
+}
+
+/** Link moodboard client — cantik dengan nama pasangan: #/mb/salsabila-raka/TOKEN */
+export function shareUrl(token, who, couple) {
   const q = who === 'two' ? '?who=two' : ''
-  return window.location.origin + window.location.pathname + '#/mb/' + token + q
+  const slug = couple ? slugify(couple) : ''
+  return window.location.origin + window.location.pathname + '#/mb/' + (slug ? slug + '/' : '') + token + q
+}
+
+/** Link halaman pasangan — cantik juga: #/couple/salsabila-raka/TOKEN */
+export function coupleUrl(token, couple) {
+  const slug = couple ? slugify(couple) : ''
+  return window.location.origin + window.location.pathname + '#/couple/' + (slug ? slug + '/' : '') + token
 }
 
 /** Normalisasi nomor WA untuk wa.me: 08xx → 628xx, buang spasi/+/-. */
@@ -63,7 +82,7 @@ export function waNumber(raw) {
 }
 
 export function waShareUrl(token, coupleName, who, pin, number) {
-  const url = shareUrl(token, who)
+  const url = shareUrl(token, who, coupleName)
   const whoLabel = who === 'two' ? ' (mempelai 2)' : who === 'one' ? ' (mempelai 1)' : ''
   const pinLine = pin ? `\n🔒 Kode akses moodboard: ${pin}` : ''
   const text = `Halo ${coupleName || 'kamu'} 🎀\nIni moodboard pernikahan kita — isi sesuai keinginan ya, tinggal klik link di bawah ini${whoLabel}:\n${url}${pinLine}\n\nTerima kasih! — Mentari Wedding`
@@ -83,6 +102,54 @@ export function todayISO() {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${d.getFullYear()}-${m}-${day}`
+}
+
+/** Buat file kalender (ICS) untuk tanggal pernikahan. */
+export function makeIcs({ summary, date, time, endTime, location, description }) {
+  const esc = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,')
+  const dateNum = (d) => (d || '').replace(/-/g, '')
+  const timeNum = (t) => (t || '').replace(/:/g, '') + '00'
+  const now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+  const hasTime = Boolean(time && /^\d{2}:\d{2}/.test(time))
+  const startDate = dateNum(date)
+  const start = hasTime ? startDate + 'T' + timeNum(time) : startDate
+  const end = hasTime
+    ? startDate + 'T' + timeNum(endTime || addHours(time, 5))
+    : startDate
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Mentari Wedding//Wedding Moodboard//ID',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:' + Date.now() + '@mentariwedding',
+    'DTSTAMP:' + now + 'Z',
+    hasTime ? 'DTSTART:' + start : 'DTSTART;VALUE=DATE:' + start,
+    hasTime ? 'DTEND:' + end : 'DTEND;VALUE=DATE:' + end,
+    'SUMMARY:' + esc(summary),
+  ]
+  if (location) lines.push('LOCATION:' + esc(location))
+  if (description) lines.push('DESCRIPTION:' + esc(description))
+  lines.push('END:VEVENT', 'END:VCALENDAR')
+  return lines.join('\r\n')
+}
+
+function addHours(time, h) {
+  const [hh, mm] = time.split(':').map(Number)
+  const total = (hh + h) % 24
+  return String(total).padStart(2, '0') + ':' + String(mm).padStart(2, '0')
+}
+
+/** Unduh file kalender (.ics). */
+export function downloadIcs(filename, content) {
+  const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 /** Waktu relatif: 'baru saja', '5 menit lalu', '2 jam lalu', '3 hari lalu'. */
@@ -291,6 +358,48 @@ export function mergeMoodboards(a = {}, b = {}) {
   }
 }
 
+/** Ambil info embed (YouTube/Spotify) dari link — untuk media player. */
+export function getEmbedInfo(url) {
+  if (!url) return null
+  try {
+    const u = new URL(url)
+    const host = u.hostname.replace('www.', '')
+    // YouTube: watch?v=, youtu.be/, shorts/, embed/, live/
+    if (host.includes('youtube.com') || host.includes('youtu.be')) {
+      let id = null
+      if (host === 'youtu.be') id = u.pathname.split('/')[1]
+      else if (u.pathname.startsWith('/shorts/')) id = u.pathname.split('/')[2]
+      else if (u.pathname.startsWith('/embed/')) id = u.pathname.split('/')[2]
+      else if (u.pathname.startsWith('/live/')) id = u.pathname.split('/')[2]
+      else id = u.searchParams.get('v')
+      if (id && /^[\w-]{11}$/.test(id)) {
+        return {
+          type: 'youtube',
+          id,
+          embedUrl: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
+          thumb: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+        }
+      }
+    }
+    // Spotify: open.spotify.com/track/ID (juga album/playlist/episode)
+    if (host.includes('spotify.com')) {
+      const parts = u.pathname.split('/').filter(Boolean)
+      if (parts.length >= 2 && parts[0] === 'embed') {
+        return { type: 'spotify', id: parts[2] || '', embedUrl: url, thumb: '' }
+      }
+      if (parts.length >= 2 && ['track', 'album', 'playlist', 'episode', 'show'].includes(parts[0])) {
+        return {
+          type: parts[0] === 'track' ? 'spotify' : 'spotify-' + parts[0],
+          id: parts[1],
+          embedUrl: `https://open.spotify.com/embed/${parts[0]}/${parts[1]}`,
+          thumb: '',
+        }
+      }
+    }
+  } catch {}
+  return null
+}
+
 /** Ubah array of objects jadi CSV (dengan kutip & escape). */
 export function toCsv(rows) {
   if (!rows.length) return ''
@@ -318,7 +427,7 @@ export function downloadCsv(filename, content) {
 
 /** Pesan WA pengingat untuk client yang belum selesai mengisi. */
 export function waReminderUrl(token, coupleName, number, label) {
-  const url = shareUrl(token)
+  const url = shareUrl(token, undefined, coupleName)
   const who = coupleName || 'kamu'
   const whoLabel = label ? ` (${label})` : ''
   const text = `Halo ${who}${whoLabel} 🌸\nIni kami dari Mentari Wedding — sekadar mengingatkan, moodboard pernikahan kalian masih menunggu isian (bisa disimpan sebagai draft dan dilanjut kapan saja).\n\nKlik di sini:\n${url}\n\nKalau ada kendala, tinggal balas pesan ini ya. Terima kasih!`

@@ -1,7 +1,8 @@
 import { Field, TextArea, TextInput } from '../ui'
 import { Note } from './common'
 import Icon from '../../lib/icons'
-import { linkType, fetchLinkMeta } from '../../lib/utils'
+import { linkType, fetchLinkMeta, getEmbedInfo } from '../../lib/utils'
+import MediaPlayer from '../MediaPlayer'
 
 const MOMENTS = ['Akad / Prosesi', 'Resepsi / Party', 'First Dance', 'Foto & Video', 'Lainnya']
 
@@ -38,14 +39,17 @@ function SongRow({ song, index, onChange, onRemove }) {
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => onRemove(index)}
-          className="shrink-0 rounded-full p-2 text-stone transition hover:text-rose"
-          title="Hapus lagu"
-        >
-          <Icon name="trash" className="h-3.5 w-3.5" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {song.url && <MediaPlayer url={song.url} title={song.title} size="sm" />}
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            className="rounded-full p-2 text-stone transition hover:text-rose"
+            title="Hapus lagu"
+          >
+            <Icon name="trash" className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
       <div className="grid gap-2.5 sm:grid-cols-2">
         <TextInput value={song.title} onChange={(e) => set({ title: e.target.value })} placeholder="Judul lagu / artis" />

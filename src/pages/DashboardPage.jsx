@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createProject, listProjects, deleteProject, updateProjectStatus, updateProject, subscribeProject, makePin, updateStaffNotes, isSetupError, addMoodboardComment, duplicateProject } from '../lib/api'
 import { SECTIONS, THEMES, PRIORITY_ITEMS } from '../lib/constants'
 import {
-  computeProgress, copyText, formatDate, isSectionFilled, shareUrl, waShareUrl, waReminderUrl, waNumber, linkType, timeAgo, todayISO, toCsv, downloadCsv,
+  computeProgress, copyText, formatDate, isSectionFilled, shareUrl, coupleUrl, waShareUrl, waReminderUrl, waNumber, linkType, timeAgo, todayISO, toCsv, downloadCsv, makeIcs, downloadIcs,
   mergeMoodboards, generateConcept, daysUntil,
 } from '../lib/utils'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
@@ -17,6 +17,7 @@ import QrModal from '../components/QrModal'
 import PrintSummary from '../components/PrintSummary'
 import Lightbox from '../components/Lightbox'
 import CommentsBlock from '../components/CommentsBlock'
+import MediaPlayer from '../components/MediaPlayer'
 
 const STATUS_META = {
   invited: { label: 'Menunggu isian', color: 'gray', icon: 'clock' },
@@ -150,9 +151,9 @@ function SectionSummary({ id, s }) {
                 <span className="shrink-0 rounded-full bg-cream px-2 py-0.5 text-[10px] text-stone">{x.moment}</span>
                 <span className="min-w-0 flex-1 truncate">{x.title || x.url}</span>
                 {x.url && (
-                  <a href={x.url} target="_blank" rel="noreferrer" className="shrink-0 text-gold hover:opacity-80" title="Buka link">
-                    <Icon name={linkType(x.url)} className="h-3.5 w-3.5" />
-                  </a>
+                  <span className="shrink-0">
+                    <MediaPlayer url={x.url} title={x.title} variant="modal" size="sm" />
+                  </span>
                 )}
               </li>
             ))}
@@ -217,7 +218,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
   const progTwo = cdRaw ? computeProgress(cdRaw.two) : null
   const token = project.token
   const waTarget = project.client_wa || data.couple?.wa || ''
-  const url = shareUrl(token)
+  const url = shareUrl(token, undefined, project.couple)
   const [tab, setTab] = useState('ringkasan')
   const [notes, setNote] = useStaffNotes(project)
   const [posterBusy, setPosterBusy] = useState(false)
@@ -248,6 +249,24 @@ function ProjectDetail({ project, refresh, toastAdd }) {
     } finally {
       setPosterBusy(false)
     }
+  }
+
+  const doSaveCalendar = () => {
+    const wDate = data.couple?.weddingDate || project.date
+    if (!wDate) { toastAdd('Tanggal pernikahan belum diisi', 'info'); return }
+    const venue = data.couple?.venue || project.venue || ''
+    const time = data.ceremony?.time || ''
+    downloadIcs(
+      `undangan-${(project.couple || 'pernikahan').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.ics`,
+      makeIcs({
+        summary: `${project.couple} — Hari Pernikahan`,
+        date: wDate,
+        time,
+        location: venue,
+        description: `Moodboard pernikahan: ${url}`,
+      }),
+    )
+    toastAdd('File kalender diunduh — buka untuk menambah ke kalender', 'calendar')
   }
 
   const doExportCsv = () => {
@@ -375,7 +394,8 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
           <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
           <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
-          <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => window.open(`${window.location.origin}${window.location.pathname}#/couple/${token}`, '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
+          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
+          <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
           <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
           <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" disabled={dupBusy} onClick={async () => {
             if (!confirm('Duplikat proyek ini? Isian client TIDAK disalin — hanya data proyek & catatan WO.')) return
@@ -446,8 +466,8 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           <p className="inline-flex items-center gap-2 text-sm font-medium text-ink"><Icon name="link" className="h-4 w-4 text-gold" /> Dua link untuk dua mempelai</p>
           <div className="mt-3 space-y-2.5">
             {[
-              ['one', 'Mempelai 1', shareUrl(token, 'one')],
-              ['two', 'Mempelai 2', shareUrl(token, 'two')],
+              ['one', 'Mempelai 1', shareUrl(token, 'one', project.couple)],
+              ['two', 'Mempelai 2', shareUrl(token, 'two', project.couple)],
             ].map(([w, label, u]) => (
               <div key={w} className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 shadow-card">
                 <span className="shrink-0 rounded-full bg-ink px-2.5 py-0.5 text-[11px] text-ivory">{label}</span>
