@@ -21,13 +21,28 @@ export async function captureElement(el, { filename, backgroundColor = '#FBF8F4'
   // 2) Lazy-load library (tidak membebani bundle utama)
   const { toPng } = await import('html-to-image')
 
-  const dataUrl = await toPng(el, {
-    backgroundColor,
-    pixelRatio: scale,
-    cacheBust: true,
-  })
+  // 3) Render ke PNG.
+  //    skipFonts:true dipakai saat mode percobaan pertama gagal karena
+  //    stylesheet remote (Google Fonts) tidak bisa dibaca (SecurityError).
+  //    Font sudah dimuat di halaman → hasil tetap memakai font (fallback aman).
+  let dataUrl
+  try {
+    dataUrl = await toPng(el, {
+      backgroundColor,
+      pixelRatio: scale,
+      cacheBust: true,
+    })
+  } catch (err) {
+    // Coba lagi tanpa inlining font remote (menghindari SecurityError cssRules)
+    dataUrl = await toPng(el, {
+      backgroundColor,
+      pixelRatio: scale,
+      cacheBust: true,
+      skipFonts: true,
+    })
+  }
 
-  // 3) Unduh
+  // 4) Unduh
   const a = document.createElement('a')
   a.download = filename
   a.href = dataUrl
