@@ -943,6 +943,14 @@ export default function DashboardPage() {
     return () => unsubs.forEach((u) => { try { if (typeof u === 'function') u() } catch {} })
   }, [projects?.length])
 
+  // Polling 30 detik — jaring pengaman kalau realtime Supabase belum diaktifkan
+  useEffect(() => {
+    if (!isSupabaseConfigured || !session) return
+    const id = setInterval(() => { refresh() }, 30000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session])
+
   const filtered = useMemo(() => {
     if (!projects) return []
     const withStatus = projects.map((p) => ({ ...p, _status: effStatus(p) }))

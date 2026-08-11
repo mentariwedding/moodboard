@@ -62,17 +62,41 @@ export async function createProject({ couple, venue, date, note, coupleMode, pin
 
 export async function listProjects() {
   if (isSupabaseConfigured) {
-    const { data, error } = await supabase
-      .from(TABLE('projects'))
-      .select(`*, ${TABLE('moodboards')}(is_draft, data, comments)`)
-      .order('created_at', { ascending: false })
-    if (error) { logger.error('API error', error); throw new Error(error.message) }
     const mbKey = TABLE('moodboards')
-    return (data || []).map((p) => ({
-      ...p,
-      mb: p[mbKey]?.[0] || null,
-      [mbKey]: undefined,
-    }))
+    try {
+      const { data, error } = await supabase
+        .from(TABLE('projects'))
+        .select(`*, ${mbKey}(is_draft, data, comments)`)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      const out = (data || []).map((p) => ({
+        ...p,
+        mb: p[mbKey]?.[0] || null,
+        [mbKey]: undefined,
+      }))
+      logger.info('listProjects OK', { jumlah: out.length, dengan_mb: out.filter((p) => p.mb).length })
+      return out
+    } catch (e) {
+      // Relasi PostgREST mungkin tidak terdeteksi — fallback: muat per proyek
+      logger.warn('Join moodboard gagal, pakai fallback per-proyek:', e?.message || e)
+      const { data, error } = await supabase
+        .from(TABLE('projects'))
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) { logger.error('listProjects gagal:', error); throw new Error(error.message) }
+      const out = []
+      for (const p of data || []) {
+        try {
+          const row = await loadMoodboard(p.token)
+          out.push({ ...p, mb: row })
+        } catch (e2) {
+          logger.warn('Gagal muat moodboard per proyek:', p.token, e2?.message || e2)
+          out.push({ ...p, mb: null })
+        }
+      }
+      logger.info('listProjects (fallback) OK', { jumlah: out.length, dengan_mb: out.filter((p) => p.mb).length })
+      return out
+    }
   }
   return Object.values(demoProjects())
     .map((p) => ({ ...p, mb: p.data ? { data: p.data, is_draft: p.is_draft ?? true, comments: p.comments || {} } : null }))

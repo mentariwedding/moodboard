@@ -68,6 +68,9 @@ Tanpa konfigurasi apa pun, aplikasi berjalan **mode demo**: data disimpan di loc
 4. Buat akun WO: di **Authentication → Users → Add user** (email + password), atau atur `VITE_WO_SIGNUP_CODE` di `.env` supaya bisa daftar sendiri dari halaman login dashboard.
 5. Restart dev server, login di `/dashboard`, buat proyek, kirim link ke client. 🎉
 
+**Aktifkan Realtime (biar dashboard auto-update tanpa refresh):**
+Dashboard otomatis polling tiap 30 detik sebagai cadangan, tapi untuk update instan: buka Dashboard Supabase → **Database → Replication** → di bagian *Source* aktifkan toggle untuk tabel **`mw_moodboards`** → Save.
+
 ## Menjalankan
 
 ```bash
