@@ -63,46 +63,36 @@ export async function createProject({ couple, venue, date, note, coupleMode, pin
 export async function listProjects() {
   if (isSupabaseConfigured) {
     const mbKey = TABLE('moodboards')
+    // 1) Ambil semua proyek
+    let projects = []
     try {
-      const { data, error } = await supabase
-        .from(TABLE('projects'))
-        .select(`*, ${mbKey}(is_draft, data, comments)`)
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      const out = (data || []).map((p) => ({
-        ...p,
-        mb: p[mbKey]?.[0] || null,
-        [mbKey]: undefined,
-      }))
-      logger.info('listProjects OK', { jumlah: out.length, dengan_mb: out.filter((p) => p.mb).length })
-      return out
-    } catch (e) {
-      // Relasi PostgREST mungkin tidak terdeteksi — fallback: muat per proyek
-      logger.warn('Join moodboard gagal, pakai fallback per-proyek:', e?.message || e)
       const { data, error } = await supabase
         .from(TABLE('projects'))
         .select('*')
         .order('created_at', { ascending: false })
-      if (error) { logger.error('listProjects gagal:', error); throw new Error(error.message) }
-      const out = []
-      for (const p of data || []) {
-        try {
-          // Pakai client utama (sesi WO) — lebih andal & tidak bikin instance GoTrueClient baru
-          const { data: mbRow, error: mbErr } = await supabase
-            .from(TABLE('moodboards'))
-            .select('*')
-            .eq('project_id', p.token)
-            .maybeSingle()
-          if (mbErr) throw mbErr
-          out.push({ ...p, mb: mbRow || null })
-        } catch (e2) {
-          logger.warn('Gagal muat moodboard per proyek:', p.token, e2?.message || e2)
-          out.push({ ...p, mb: null })
-        }
-      }
-      logger.info('listProjects (fallback) OK', { jumlah: out.length, dengan_mb: out.filter((p) => p.mb).length })
-      return out
+      if (error) throw error
+      projects = data || []
+    } catch (e) {
+      logger.error('listProjects gagal:', e)
+      throw new Error(e.message)
     }
+
+    // 2) Ambil SEMUA moodboard dalam satu query (tanpa join — tidak bergantung relasi PostgREST)
+    const mbByToken = {}
+    try {
+      const { data: mbs, error: mbErr } = await supabase
+        .from(TABLE('moodboards'))
+        .select('project_id, is_draft, data, comments, submitted_at, updated_at')
+      if (mbErr) throw mbErr
+      ;(mbs || []).forEach((r) => { mbByToken[r.project_id] = r })
+    } catch (e) {
+      logger.warn('Muat semua moodboard gagal:', e?.message || e)
+    }
+
+    // 3) Gabungkan
+    const out = projects.map((p) => ({ ...p, mb: mbByToken[p.token] || null }))
+    logger.info('listProjects OK', { jumlah: out.length, dengan_mb: out.filter((p) => p.mb).length })
+    return out
   }
   return Object.values(demoProjects())
     .map((p) => ({ ...p, mb: p.data ? { data: p.data, is_draft: p.is_draft ?? true, comments: p.comments || {} } : null }))
@@ -257,13 +247,33 @@ export async function saveCouplePart(token, mbData, who, partData, isDraft) {
 export async function loadMoodboard(token) {
   if (isSupabaseConfigured) {
     const client = clientSupabaseWithToken(token)
-    const { data, error } = await client
-      .from(TABLE('moodboards'))
-      .select('*')
-      .eq('project_id', token)
-      .maybeSingle()
-    if (error) { logger.error('API error', error); throw new Error(error.message) }
-    if (data) return data
+    // Tabel baru (prefix mw_)
+    try {
+      const { data, error } = await client
+        .from(TABLE('moodboards'))
+        .select('*')
+        .eq('project_id', token)
+        .maybeSingle()
+      if (error) throw error
+      if (data) return data
+    } catch (e) {
+      logger.warn('loadMoodboard (mw_) gagal:', e?.message || e)
+    }
+    // Tabel LEGACY (tanpa prefix) — data dari build lama sebelum migrasi prefix
+    try {
+      const { data: legacy, error: legacyErr } = await client
+        .from('moodboards')
+        .select('*')
+        .eq('project_id', token)
+        .maybeSingle()
+      if (legacyErr) throw legacyErr
+      if (legacy) {
+        logger.info('loadMoodboard: data dari tabel legacy (moodboards)', { token })
+        return legacy
+      }
+    } catch (e) {
+      logger.warn('loadMoodboard legacy gagal:', e?.message || e)
+    }
     return null
   }
   const p = demoProjects()[token]
