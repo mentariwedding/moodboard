@@ -76,6 +76,7 @@ function SectionBlock({ s, sec }) {
   } else if (s.id === 'stationery') {
     add('stationery', 'Jenis', d.type)
     add('colors', 'Gaya', d.style)
+    add('signature', 'Font', d.fontStyle)
     add('signature', 'Monogram', d.monogram)
     add('feather', 'Catatan', d.notes)
   } else if (s.id === 'photo') {
@@ -98,6 +99,7 @@ function SectionBlock({ s, sec }) {
     add('feather', 'Catatan', d.notes)
   } else if (s.id === 'references') {
     add('images', 'Foto referensi', `${(d.images || []).length} foto`)
+    add('heart', 'Galeri disukai', `${(d.liked || []).length} gaya`)
     add('link', 'Link', (d.links || []).join('  ·  '))
   }
 

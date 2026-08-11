@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { Field, TextInput } from '../ui'
+import { INSPIRATION_GALLERY } from '../../lib/constants'
 import { compressImage } from '../../lib/utils'
 import { Note } from './common'
 import Icon from '../../lib/icons'
@@ -82,6 +83,42 @@ export default function ReferencesSection({ data, update, uploadRef }) {
               e.target.value = ''
             }}
           />
+        </div>
+      </div>
+
+<div>
+        <p className="mb-1.5 text-sm font-medium text-ink">Galeri inspirasi — tap ❤️ untuk menandai yang disukai</p>
+        <p className="mb-3 -mt-1 text-xs text-stone">Tidak punya foto? Cukup tandai gaya yang kamu suka — langsung masuk moodboard.</p>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+          {INSPIRATION_GALLERY.map((g) => {
+            const liked = (data.liked || []).includes(g.id)
+            return (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => {
+                  const cur = data.liked || []
+                  update({ liked: liked ? cur.filter((x) => x !== g.id) : [...cur, g.id] })
+                }}
+                className={`group relative aspect-square overflow-hidden rounded-xl border-2 transition-all ${
+                  liked ? 'border-gold shadow-soft' : 'border-transparent hover:border-gold/40'
+                }`}
+                title={g.label}
+              >
+                <img src={g.img} alt={g.label} className="h-full w-full object-cover" loading="lazy" />
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 pb-1 pt-5 text-[9px] font-medium text-white">
+                  {g.label}
+                </span>
+                <span
+                  className={`absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-xs transition ${
+                    liked ? 'bg-gold text-white' : 'bg-white/70 text-stone opacity-0 group-hover:opacity-100'
+                  }`}
+                >
+                  {liked ? '♥' : '♡'}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
 

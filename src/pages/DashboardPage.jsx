@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createProject, listProjects, deleteProject, updateProjectStatus, updateProject, subscribeProject, makePin, updateStaffNotes, isSetupError, addMoodboardComment, duplicateProject } from '../lib/api'
-import { SECTIONS, THEMES, PRIORITY_ITEMS } from '../lib/constants'
+import { SECTIONS, THEMES, PRIORITY_ITEMS, FONT_STYLES, INSPIRATION_GALLERY } from '../lib/constants'
 import {
   computeProgress, copyText, formatDate, isSectionFilled, shareUrl, coupleUrl, waShareUrl, waReminderUrl, waNumber, linkType, timeAgo, todayISO, toCsv, downloadCsv, makeIcs, downloadIcs,
   mergeMoodboards, generateConcept, daysUntil,
@@ -124,6 +124,7 @@ function SectionSummary({ id, s }) {
   } else if (id === 'stationery') {
     add('Jenis', s.type)
     add('Gaya', s.style)
+    add('Font', s.fontStyle ? (FONT_STYLES.find((f) => f.id === s.fontStyle)?.label || s.fontStyle) : '')
     add('Monogram', s.monogram)
     add('Catatan', s.notes)
   } else if (id === 'photo') {
@@ -168,10 +169,12 @@ function SectionSummary({ id, s }) {
   } else if (id === 'references') {
     const nImg = (s.images || []).length
     const nLink = (s.links || []).length
+    const nLike = (s.liked || []).length
     return (
       <div className="space-y-2 text-sm">
         <p className="inline-flex items-center gap-1.5"><Icon name="images" className="h-3.5 w-3.5 text-gold" /> Foto referensi: <b>{nImg} foto</b>{nImg > 0 && <span className="text-stone/60">(lihat tab Referensi)</span>}</p>
         <p className="inline-flex items-center gap-1.5"><Icon name="link" className="h-3.5 w-3.5 text-gold" /> Link: <b>{nLink} link</b>{nLink > 0 && <span className="text-stone/60">(lihat tab Referensi)</span>}</p>
+        {nLike > 0 && <p className="inline-flex items-center gap-1.5"><Icon name="heart" className="h-3.5 w-3.5 text-rose" /> Galeri disukai: <b>{nLike} gaya</b></p>}
       </div>
     )
   }

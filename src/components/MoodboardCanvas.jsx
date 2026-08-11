@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { THEMES, PALETTE_META, SECTIONS, PRIORITY_ITEMS } from '../lib/constants'
+import { THEMES, PALETTE_META, SECTIONS, PRIORITY_ITEMS, INSPIRATION_GALLERY } from '../lib/constants'
 import { accentFromPalette, filledSections } from '../lib/utils'
 import Icon from '../lib/icons'
 
@@ -32,11 +32,12 @@ function boardContent(data) {
   add('stationery', 'Undangan', data.stationery?.type)
   add('photo', 'Foto', data.photo?.styles)
   add('priorities', 'Prioritas', (data.priorities?.top3 || []).map(PRIO_LABEL))
-  return { themes, palette, paletteName: data.colors?.paletteName || '', chips, refs: data.references?.images || [] }
+  const liked = (data.references?.liked || []).map((id) => INSPIRATION_GALLERY.find((g) => g.id === id)).filter(Boolean)
+  return { themes, palette, paletteName: data.colors?.paletteName || '', chips, refs: data.references?.images || [], liked }
 }
 
 export function Board({ data, project, scrollable = true }) {
-  const { themes, palette, paletteName, chips, refs } = boardContent(data)
+  const { themes, palette, paletteName, chips, refs, liked } = boardContent(data)
   const filled = filledSections(data)
   const total = SECTIONS.length
   const accent =
@@ -71,20 +72,28 @@ export function Board({ data, project, scrollable = true }) {
           </div>
         ) : (
           <>
-            {themes.length > 0 && (
-              <div className={`grid gap-2 ${themes.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {/* Kolase: tema + galeri disukai + foto referensi */}
+            {(themes.length > 0 || liked.length > 0 || refs.length > 0) && (
+              <div className="columns-2 gap-2 [&>div]:mb-2">
                 {themes.map((t) => (
-                  <div key={t.id} className="relative overflow-hidden rounded-xl">
-                    <img
-                      src={t.img}
-                      alt={t.label}
-                      className={`w-full object-cover ${themes.length > 1 ? 'h-20' : 'h-24'}`}
-                      loading="lazy"
-                    />
+                  <div key={'th-' + t.id} className="relative overflow-hidden rounded-xl break-inside-avoid">
+                    <img src={t.img} alt={t.label} className="w-full object-cover" style={{ height: 84 }} loading="lazy" />
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-2 pb-1 pt-4 text-[10px] font-medium text-white">
                       {t.label}
                     </span>
                   </div>
+                ))}
+                {liked.map((g) => (
+                  <div key={'lk-' + g.id} className="relative overflow-hidden rounded-xl break-inside-avoid">
+                    <img src={g.img} alt={g.label} className="w-full object-cover" style={{ height: 96 }} loading="lazy" />
+                    <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[9px] text-white">♥</span>
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-1.5 pb-0.5 pt-3 text-[9px] text-white/90">
+                      {g.cat}
+                    </span>
+                  </div>
+                ))}
+                {refs.slice(0, 4).map((img, i) => (
+                  <img key={'rf-' + i} src={img.demo ? img.dataUrl : img.publicUrl} alt={`referensi ${i + 1}`} className="w-full rounded-xl object-cover break-inside-avoid" style={{ height: 76 }} loading="lazy" />
                 ))}
               </div>
             )}

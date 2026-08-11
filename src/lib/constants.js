@@ -27,6 +27,28 @@ export const SECTIONS = [
 export const SECTION_IDS = SECTIONS.map((s) => s.id)
 
 // Bab wizard — memberi rasa 'bercerita' alih-alih 13 langkah
+// Galeri inspirasi bawaan — client bisa menandai "suka" tanpa upload foto
+export const INSPIRATION_GALLERY = [
+  { id: 'g1', cat: 'Dekorasi', img: '/themes/garden.jpg', label: 'Garden arch' },
+  { id: 'g2', cat: 'Dekorasi', img: '/themes/rustic.jpg', label: 'Rustic table' },
+  { id: 'g3', cat: 'Dekorasi', img: '/themes/classic.jpg', label: 'Ballroom classic' },
+  { id: 'g4', cat: 'Dekorasi', img: '/themes/bohemian.jpg', label: 'Boho setup' },
+  { id: 'g5', cat: 'Dekorasi', img: '/themes/minimalist.jpg', label: 'Minimal stage' },
+  { id: 'g6', cat: 'Dekorasi', img: '/themes/tropical.jpg', label: 'Tropical vibe' },
+  { id: 'g7', cat: 'Dekorasi', img: '/themes/royal.jpg', label: 'Royal stage' },
+  { id: 'g8', cat: 'Dekorasi', img: '/themes/modernmuslim.jpg', label: 'Modern modest' },
+  { id: 'g9', cat: 'Dekorasi', img: '/themes/javanese.jpg', label: 'Pelaminan Jawa' },
+  { id: 'g10', cat: 'Dekorasi', img: '/themes/vintage.jpg', label: 'Vintage corner' },
+]
+
+// Gaya font undangan — client pilih dengan melihat contoh langsung
+export const FONT_STYLES = [
+  { id: 'classic-serif', label: 'Classic Serif', font: '"Playfair Display", serif', desc: 'Elegan & timeless' },
+  { id: 'elegant-script', label: 'Elegant Script', font: '"Great Vibes", cursive', desc: 'Kaligrafi romantis' },
+  { id: 'modern-garamond', label: 'Modern Garamond', font: '"Cormorant Garamond", serif', desc: 'Mewah & modern' },
+  { id: 'clean-sans', label: 'Clean Sans', font: '"Jost", sans-serif', desc: 'Minimalis & rapi' },
+]
+
 export const WIZARD_CHAPTERS = [
   { id: 'dasar', label: 'Tentang Kalian', sub: 'cerita & warna kalian', icon: 'heart' },
   { id: 'hari', label: 'Hari Bahagia', sub: 'dekorasi, acara & musik', icon: 'ceremony' },
@@ -191,10 +213,10 @@ export const EMPTY_DATA = {
   look: { dress: '', dressAccent: '', makeup: '', groom: '', accessories: '', notes: '' },
   ceremony: { format: '', time: '', traditions: [], entertainment: [], music: [], notes: '' },
   feast: { style: '', mustHave: '', allergies: '', cake: '', notes: '' },
-  stationery: { type: '', style: [], monogram: '', notes: '' },
+  stationery: { type: '', style: [], monogram: '', fontStyle: '', notes: '' },
   photo: { styles: [], mustShots: [], notes: '' },
   priorities: { top3: [], ratings: {}, notes: '' },
   avoid: { colors: ['', ''], themes: '', notes: '' },
   playlist: { songs: [], doNotPlay: '', notes: '' },
-  references: { images: [], links: [] },
+  references: { images: [], links: [], liked: [] },
 }

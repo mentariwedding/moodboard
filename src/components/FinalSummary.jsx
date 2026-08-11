@@ -79,6 +79,7 @@ function SectionCard({ s, sec }) {
   } else if (s.id === 'stationery') {
     add('stationery', 'Jenis', d.type)
     add('colors', 'Gaya', d.style)
+    add('signature', 'Font', d.fontStyle)
     add('signature', 'Monogram', d.monogram)
     add('feather', 'Catatan', d.notes)
   } else if (s.id === 'photo') {

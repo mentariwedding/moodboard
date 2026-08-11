@@ -1,4 +1,5 @@
 import { STATIONERY_TYPES, STATIONERY_STYLES, MONOGRAM_STYLES } from '../../lib/constants'
+import FontPicker from '../FontPicker'
 import { Field, TextArea, Select } from '../ui'
 import { ChipGroup, Note } from './common'
 import Icon from '../../lib/icons'
@@ -13,6 +14,10 @@ export default function StationerySection({ data, update }) {
             <option key={t} value={t}>{t}</option>
           ))}
         </Select>
+      </Field>
+
+      <Field label="Gaya huruf (font) undangan" hint="Pilih font yang paling mewakili — contoh memakai nama kalian">
+        <FontPicker value={data.fontStyle || ''} onChange={(fontStyle) => update({ fontStyle })} coupleName="Salsabila & Raka" />
       </Field>
 
       <Field label="Gaya desain undangan" hint="Design style">

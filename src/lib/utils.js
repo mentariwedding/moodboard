@@ -354,6 +354,7 @@ export function mergeMoodboards(a = {}, b = {}) {
       images: [...(a.references?.images || []), ...(b.references?.images || [])],
       links: [...new Set([...(a.references?.links || []), ...(b.references?.links || [])])],
       _concept: a.references?._concept || b.references?._concept || '',
+      liked: [...new Set([...(a.references?.liked || []), ...(b.references?.liked || [])])],
     },
   }
 }

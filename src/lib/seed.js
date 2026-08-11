@@ -16,12 +16,12 @@ export function buildDemoData() {
   one.look = { dress: 'A-Line', dressAccent: 'Lace / renda', makeup: 'Soft Glam', groom: '', accessories: '', notes: 'Pakai veil panjang, sepatu harus nyaman.' }
   one.ceremony = { format: 'Akad + Resepsi', time: '09:00', traditions: ['Seserahan', 'Sungkeman'], entertainment: ['Akustik / Solo Singer'], music: ['Akustik Romantic', 'Jazz / Lounge'], notes: 'Akadnya khidmat, resepsinya meriah.' }
   one.feast = { style: 'Prasmanan / Buffet', mustHave: 'Rendang, sate ayam', allergies: 'Seafood (ada tamu alergi)', cake: 'Bunga Segar', notes: '' }
-  one.stationery = { type: 'Keduanya', style: ['Floral', 'Calligraphy'], monogram: 'Inisial dalam lingkaran', notes: 'Bilingual ID-EN.' }
+  one.stationery = { type: 'Keduanya', style: ['Floral', 'Calligraphy'], monogram: 'Inisial dalam lingkaran', fontStyle: 'elegant-script', notes: 'Bilingual ID-EN.' }
   one.photo = { styles: ['Candid / Natural', 'Golden Hour'], mustShots: ['Pertukaran cincin', 'Momen haru / menangis', 'Foto keluarga besar'], notes: 'Pengen ada video cinematic 3 menit.' }
   one.priorities = { top3: ['photo', 'decor', 'food'], ratings: { decor: 4, food: 3, photo: 5, outfit: 4, entertainment: 2 }, notes: '' }
   one.avoid = { colors: ['Merah menyala', ''], themes: '', notes: 'Tidak mau sambutan terlalu panjang.' }
   one.playlist = { songs: [{ moment: 'Akad / Prosesi', title: 'Perfect — Ed Sheeran', url: 'https://open.spotify.com/track/0tgVpDi06FyKpA1z0VMD4v' }, { moment: 'Resepsi / Party', title: 'Cinta Terbaik — Cassandra', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }], doNotPlay: 'Lagu yang terlalu sedih', notes: 'First dance belum diputuskan.' }
-  one.references = { images: [], links: ['https://pin.it/example-garden-wedding', 'https://instagram.com/p/example-floral-arch'] }
+  one.references = { images: [], links: ['https://pin.it/example-garden-wedding', 'https://instagram.com/p/example-floral-arch'], liked: ['g1', 'g4', 'g7'] }
   one.references._concept = 'Konsep utamanya adalah garden & rustic dengan nuansa romantis dan santai, dipertegas dengan palet blush & gold; acara berformat akad dan resepsi dengan fokus utama di foto, dekorasi, dan makanan.'
   one._submitted = true
 
