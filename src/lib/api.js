@@ -87,8 +87,14 @@ export async function listProjects() {
       const out = []
       for (const p of data || []) {
         try {
-          const row = await loadMoodboard(p.token)
-          out.push({ ...p, mb: row })
+          // Pakai client utama (sesi WO) — lebih andal & tidak bikin instance GoTrueClient baru
+          const { data: mbRow, error: mbErr } = await supabase
+            .from(TABLE('moodboards'))
+            .select('*')
+            .eq('project_id', p.token)
+            .maybeSingle()
+          if (mbErr) throw mbErr
+          out.push({ ...p, mb: mbRow || null })
         } catch (e2) {
           logger.warn('Gagal muat moodboard per proyek:', p.token, e2?.message || e2)
           out.push({ ...p, mb: null })

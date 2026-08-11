@@ -18,11 +18,23 @@ export const supabase = isSupabaseConfigured
     })
   : null
 
-/** Client dengan header token proyek — dipakai untuk upload foto oleh client. */
+/**
+ * Client dengan header token proyek — dipakai untuk operasi sisi CLIENT
+ * (baca/simpan moodboard, upload foto) sesuai aturan RLS token.
+ *
+ * PENTING: storageKey dibuat unik per token supaya TIDAK bentrok dengan
+ * client utama (WO login) — menghindari warning "Multiple GoTrueClient
+ * instances" & perilaku tak terduga pada sesi login.
+ */
 export function clientSupabaseWithToken(token) {
   if (!supabase) return null
   return createClient(url, key, {
-    auth: { persistSession: false },
+    auth: {
+      persistSession: false,
+      storageKey: `mw-anon-${token}`,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
     global: { headers: { 'x-project-token': token } },
   })
 }
