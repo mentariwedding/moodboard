@@ -1,0 +1,280 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  /* Aksen dinamis — di-set oleh hook useAccent mengikuti palet client */
+  --accent: #b08d57;
+  --accent-light: #d6be93;
+  --accent-text: #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Cegah scroll horizontal — penyebab margin kanan "mepet/terpotong" di iPhone */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Proteksi global anti-meluber (khususnya iPhone/layar sempit) */
+img,
+video,
+canvas,
+pre,
+table,
+svg {
+  max-width: 100%;
+}
+button,
+a,
+span,
+div,
+p,
+h1,
+h2,
+h3,
+h4 {
+  /* inline-flex & inline-block tidak bisa menyempit → jangan sampai meluber */
+  max-width: 100%;
+}
+input,
+textarea,
+select {
+  max-width: 100%;
+}
+#root {
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Kata/URL panjang tidak boleh mendorong lebar halaman */
+#root p,
+#root li,
+#root h1,
+#root h2,
+#root h3,
+#root span,
+#root a,
+#root button {
+  overflow-wrap: anywhere;
+}
+
+body {
+  @apply bg-ivory text-ink font-sans antialiased;
+}
+
+/* Pola latar halus — tekstur lembut ala kertas undangan */
+.bg-wedding-pattern {
+  background-image: radial-gradient(rgba(176, 141, 87, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Gradasi emas untuk nama pasangan (hero) */
+.text-gold-gradient {
+  background: linear-gradient(120deg, #b08d57 0%, #d6be93 30%, #8a6a3a 55%, #d6be93 80%, #b08d57 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: goldShimmer 6s ease-in-out infinite;
+}
+
+@keyframes goldShimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+/* Jalan setapak progress (perjalanan) */
+.journey-track {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.journey-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.journey-line {
+  height: 3px;
+  flex: 1;
+  border-radius: 99px;
+  background: rgba(43, 38, 34, 0.1);
+  transition: background 0.4s;
+}
+.journey-line.done {
+  background: linear-gradient(90deg, #b08d57, #d6be93);
+}
+.journey-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(43, 38, 34, 0.15);
+  color: rgba(43, 38, 34, 0.4);
+  transition: all 0.4s;
+  font-size: 12px;
+}
+.journey-step.done .journey-dot {
+  border-color: #b08d57;
+  background: linear-gradient(135deg, #b08d57, #d6be93);
+  color: #fff;
+}
+.journey-step.active .journey-dot {
+  border-color: #b08d57;
+  box-shadow: 0 0 0 4px rgba(176, 141, 87, 0.18);
+}
+.journey-label {
+  font-size: 9px;
+  color: rgba(43, 38, 34, 0.55);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.journey-step.done .journey-label,
+.journey-step.active .journey-label {
+  color: #8a6a3a;
+  font-weight: 600;
+}
+
+.font-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+::selection {
+  background: rgba(176, 141, 87, 0.3);
+}
+
+/* Animasi toast */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animasi moodboard canvas */
+@keyframes slideUp {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animasi transisi antar seksi */
+@keyframes sectionIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Kelopak bunga melayang */
+.petal {
+  position: absolute;
+  top: -5vh;
+  border-radius: 62% 38% 60% 40%;
+  opacity: 0;
+  animation-name: petalFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes petalFall {
+  0% {
+    transform: translateY(-5vh) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.75;
+  }
+  90% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(108vh) rotate(340deg);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   CETAK / PDF A4 — area cetak disembunyikan di layar,
+   hanya muncul saat print dialog (Save as PDF)
+   ============================================================ */
+#print-summary {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  #root {
+    display: none !important;
+  }
+
+  #print-summary {
+    display: block !important;
+  }
+
+  #print-summary * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Scrollbar halus */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(176, 141, 87, 0.4);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
