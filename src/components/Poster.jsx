@@ -20,7 +20,7 @@ export default function Poster({ project, data, id }) {
   return (
     <div
       id={id}
-      style={{ width: 1080, position: 'fixed', left: -5000, top: 0, pointerEvents: 'none', zIndex: -1 }}
+      style={{ width: 1080, position: 'fixed', left: -5000, top: 0, pointerEvents: 'none', zIndex: -1, visibility: 'hidden', display: 'none' }}
       className="bg-ivory"
     >
       <div className="px-16 py-14">
@@ -128,9 +128,17 @@ export default function Poster({ project, data, id }) {
 }
 
 export async function downloadPoster(el) {
+  if (!el) throw new Error('Poster belum siap')
+  // Tampilkan elemen (hidden → visible) hanya saat capture, lalu sembunyikan lagi
+  const prev = { display: el.style.display, visibility: el.style.visibility }
+  el.style.display = 'block'
+  el.style.visibility = 'visible'
   try {
     await captureElement(el, { filename: 'moodboard-poster.png', backgroundColor: '#FBF8F4', scale: 1.5 })
   } catch (e) {
     throw new Error('Gagal membuat poster: ' + (e?.message || e))
+  } finally {
+    el.style.display = prev.display
+    el.style.visibility = prev.visibility
   }
 }

@@ -134,7 +134,7 @@ export default function PrintSummary({ project, data }) {
   const couple = data.couple || {}
 
   const doc = (
-    <div id="print-summary" className="bg-white text-ink">
+    <div id="print-summary" className="bg-white text-ink" style={{ display: 'none' }}>
       {/* Kop */}
       <div className="mb-4 flex items-end justify-between border-b-2 border-ink/15 pb-3">
         <div>
