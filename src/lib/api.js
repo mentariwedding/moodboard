@@ -247,6 +247,9 @@ export async function loadMoodboard(token) {
   return null
 }
 
+// Cache channel per token — globalThis agar aman lintas chunk (code-splitting)
+const subscribeCache = (globalThis.__mwSubscribeCache ||= new Map())
+
 export async function subscribeProject(token, cb) {
   if (!isSupabaseConfigured || !supabase) return () => {}
 
