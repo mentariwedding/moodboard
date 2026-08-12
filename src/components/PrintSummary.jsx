@@ -201,7 +201,7 @@ export default function PrintSummary({ project, data }) {
                 key={i}
                 src={img.publicUrl || img.dataUrl}
                 alt={`ref ${i + 1}`}
-                className="h-16 w-full rounded-lg object-cover"
+                className="h-16 max-w-full rounded-lg object-cover"
               />
             ))}
           </div>

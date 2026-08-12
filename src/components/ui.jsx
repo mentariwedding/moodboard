@@ -34,7 +34,7 @@ export function Btn({ children, onClick, kind = 'primary', size = 'md', classNam
 
 export function Card({ children, className = '' }) {
   return (
-    <div className={join('bg-white rounded-2xl shadow-card border border-ink/5 p-5', className)}>
+    <div className={join('min-w-0 bg-white rounded-2xl shadow-card border border-ink/5 p-5', className)}>
       {children}
     </div>
   )

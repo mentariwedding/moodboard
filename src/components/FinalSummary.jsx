@@ -172,7 +172,7 @@ export default function FinalSummary({ data, project }) {
           <p className="mb-2 text-sm font-semibold text-ink">🖼️ Foto Referensi ({refs.length})</p>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {refs.slice(0, 8).map((img, i) => (
-              <img key={i} src={img.publicUrl || img.dataUrl} alt={`ref ${i + 1}`} className="aspect-square w-full rounded-xl object-cover" loading="lazy" />
+              <img key={i} src={img.publicUrl || img.dataUrl} alt={`ref ${i + 1}`} className="aspect-square max-w-full rounded-xl object-cover" loading="lazy" />
             ))}
           </div>
         </div>

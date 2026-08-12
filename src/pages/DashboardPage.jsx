@@ -114,7 +114,7 @@ function SectionSummary({ id, s }) {
           {show.length ? <ul className="space-y-1">{show.map((x, i) => <li key={i}>{x}</li>)}</ul> : null}
           <div>
             <p className="mb-1 inline-flex items-center gap-1 text-[12px] text-stone"><Icon name="look" className="h-3 w-3 text-gold" /> Foto referensi gaun</p>
-            <img src={s.outfitPhoto} alt="Referensi gaun" className="h-32 w-full rounded-xl object-cover border border-ink/10" />
+            <img src={s.outfitPhoto} alt="Referensi gaun" className="max-h-48 w-full max-w-full rounded-xl border border-ink/10 object-contain bg-cream/40" loading="lazy" />
           </div>
         </div>
       )
@@ -505,7 +505,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       </div>
 
       {tab === 'ringkasan' && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 [&>*]:min-w-0">
           {SECTIONS.map((s) => (
             <Card key={s.id} className={s.id === 'priorities' || s.id === 'avoid' ? 'sm:col-span-2' : ''}>
               <div className="mb-2 flex items-center justify-between">
