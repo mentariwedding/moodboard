@@ -375,42 +375,45 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           ))}
         </div>
       )}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 max-w-full flex-1">
           <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm">
+
+          {/* Baris 1 — status & tanggal */}
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
             <StatusBadge status={status} />
-          </div>
-          {/* Info utama — grid 2 kolom berlabel, rapi di layar sempit */}
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {project.date && (
-              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
-                <p className="text-[10px] uppercase tracking-wider text-stone">Tanggal</p>
-                <p className="truncate text-sm font-medium text-ink">{formatDate(project.date)}</p>
-              </div>
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
+                <Icon name="calendar" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{formatDate(project.date)}</span>
+              </span>
             )}
             {days !== null && days >= 0 && (
-              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
-                <p className="text-[10px] uppercase tracking-wider text-stone">Menuju hari-H</p>
-                <p className="text-sm font-medium text-ink">H-{days}</p>
-              </div>
-            )}
-            {project.venue && (
-              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
-                <p className="text-[10px] uppercase tracking-wider text-stone">Venue</p>
-                <p className="truncate text-sm font-medium text-ink">{project.venue}</p>
-              </div>
-            )}
-            {project.client_wa && (
-              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
-                <p className="text-[10px] uppercase tracking-wider text-stone">WA Client</p>
-                <p className="truncate text-sm font-medium text-ink">{project.client_wa}</p>
-              </div>
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
+                <Icon name="heart" className="h-3 w-3 text-rose" /> H-{days}
+              </span>
             )}
           </div>
-          {(project.mb?.updated_at || project.updated_at) && (
-            <p className="mt-1.5 text-xs text-stone/60">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</p>
-          )}
+
+          {/* Baris 2 — venue, WA, diperbarui */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
+            {project.venue && (
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
+                <Icon name="location" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.venue}</span>
+              </span>
+            )}
+            {project.client_wa && (
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
+                <Icon name="phone" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.client_wa}</span>
+              </span>
+            )}
+            {(project.mb?.updated_at || project.updated_at) && (
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone/70">
+                <Icon name="clock" className="h-3 w-3 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span>
+              </span>
+            )}
+          </div>
+
+          {/* Mode bareng */}
           {project.couple_mode && cd && (
             <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
               <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/25 px-3 py-1 text-[#7a5c30]"><Icon name="users" className="h-3 w-3" /> Mode isi bareng</span>
@@ -419,27 +422,29 @@ function ProjectDetail({ project, refresh, toastAdd }) {
             </div>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
-          <Btn kind="gold" size="sm" className="sm:flex-none" onClick={() => {
+
+        {/* Tombol aksi — kanan atas, ukuran normal */}
+        <div className="flex w-full flex-wrap gap-1.5 sm:w-auto sm:max-w-[240px] sm:justify-end lg:max-w-none">
+          <Btn kind="outline" size="sm" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
+          <Btn kind="gold" size="sm" onClick={() => {
             if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
             window.open(waShareUrl(token, project.couple, undefined, waTarget), '_blank')
           }}><Icon name="wa" className="h-3.5 w-3.5" /> Kirim via WA</Btn>
           {status !== 'submitted' && status !== 'done' && (
-            <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => {
-            const rem = reminderInfo(project, waTarget)
-            if (!waNumber(rem.number)) { toastAdd('Tidak ada nomor WA — isi di menu Edit dulu ya', 'info'); return }
-            window.open(waReminderUrl(token, project.couple, rem.number, rem.label), '_blank')
-          }}><Icon name="bell" className="h-3.5 w-3.5" /> Kirim Pengingat</Btn>
+            <Btn kind="outline" size="sm" onClick={() => {
+              const rem = reminderInfo(project, waTarget)
+              if (!waNumber(rem.number)) { toastAdd('Tidak ada nomor WA — isi di menu Edit dulu ya', 'info'); return }
+              window.open(waReminderUrl(token, project.couple, rem.number, rem.label), '_blank')
+            }}><Icon name="bell" className="h-3.5 w-3.5" /> Kirim Pengingat</Btn>
           )}
-          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Unduh Poster'}</Btn>
-          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
-          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
-          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
-          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
-          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
-          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
-          <Btn kind="white" size="sm" className="sm:flex-none" disabled={dupBusy} onClick={async () => {
+          <Btn kind="white" size="sm" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Unduh Poster'}</Btn>
+          <Btn kind="white" size="sm" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
+          <Btn kind="white" size="sm" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
+          <Btn kind="white" size="sm" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
+          <Btn kind="white" size="sm" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
+          <Btn kind="outline" size="sm" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
+          <Btn kind="white" size="sm" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
+          <Btn kind="white" size="sm" disabled={dupBusy} onClick={async () => {
             if (!confirm('Duplikat proyek ini? Isian client TIDAK disalin — hanya data proyek & catatan WO.')) return
             setDupBusy(true)
             try {
@@ -453,7 +458,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
               setDupBusy(false)
             }
           }}><Icon name="copy" className="h-3.5 w-3.5" /> {dupBusy ? 'Menduplikat…' : 'Duplikat'}</Btn>
-          <Btn kind="ghost" size="sm" className="text-rose sm:flex-none" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
+          <Btn kind="ghost" size="sm" className="text-rose" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
         </div>
       </div>
 
@@ -633,19 +638,19 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       {/* Actions */}
       <div className="flex flex-wrap gap-2 pt-2">
         {status !== 'done' && (
-          <Btn kind="gold" size="sm" className="sm:flex-none" onClick={() => { window.open(url, '_blank'); toastAdd('Link dibuka di tab baru', 'external') }}><Icon name="external" className="h-3.5 w-3.5" /> Buka isian client</Btn>
+          <Btn kind="gold" size="sm" className="w-full lg:w-auto" onClick={() => { window.open(url, '_blank'); toastAdd('Link dibuka di tab baru', 'external') }}><Icon name="external" className="h-3.5 w-3.5" /> Buka isian client</Btn>
         )}
         {status === 'submitted' && (
-          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={async () => { await updateProjectStatus(token, 'done'); refresh(); toastAdd('Ditandai sudah diproses', 'checkCircle') }}>
+          <Btn kind="outline" size="sm" className="w-full lg:w-auto" onClick={async () => { await updateProjectStatus(token, 'done'); refresh(); toastAdd('Ditandai sudah diproses', 'checkCircle') }}>
             <Icon name="checkCircle" className="h-3.5 w-3.5" /> Tandai sudah diproses
           </Btn>
         )}
         {status === 'done' && (
-          <Btn kind="ghost" size="sm" className="sm:flex-none" onClick={async () => { await updateProjectStatus(token, 'submitted'); refresh(); toastAdd('Status dikembalikan ke selesai', 'rotate') }}>
+          <Btn kind="ghost" size="sm" className="w-full lg:w-auto" onClick={async () => { await updateProjectStatus(token, 'submitted'); refresh(); toastAdd('Status dikembalikan ke selesai', 'rotate') }}>
             <Icon name="rotate" className="h-3.5 w-3.5" /> Kembalikan status
           </Btn>
         )}
-        <Btn kind="ghost" size="sm" className="sm:flex-none" onClick={async () => { await updateProjectStatus(token, 'invited'); refresh(); toastAdd('Status direset ke menunggu isian', 'rotate') }}>
+        <Btn kind="ghost" size="sm" className="w-full lg:w-auto" onClick={async () => { await updateProjectStatus(token, 'invited'); refresh(); toastAdd('Status direset ke menunggu isian', 'rotate') }}>
           <Icon name="rotate" className="h-3.5 w-3.5" /> Reset status
         </Btn>
       </div>
