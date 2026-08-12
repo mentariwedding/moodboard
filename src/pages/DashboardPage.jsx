@@ -424,7 +424,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
         </div>
 
         {/* Tombol aksi — kanan atas, ukuran normal */}
-        <div className="flex w-full flex-wrap gap-1.5 sm:w-auto sm:max-w-[240px] sm:justify-end lg:max-w-none">
+        <div className="flex w-full flex-wrap justify-start gap-1.5 sm:w-auto sm:max-w-none lg:justify-end">
           <Btn kind="outline" size="sm" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
           <Btn kind="gold" size="sm" onClick={() => {
             if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
@@ -522,7 +522,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       )}
 
       {/* Tabs — flex-wrap: tidak pernah terpotong di layar sempit */}
-      <div className="mt-5 flex flex-wrap gap-1 border-b border-ink/10">
+      <div className="mt-5 flex flex-wrap justify-start gap-1 border-b border-ink/10">
         {[
           ['ringkasan', 'clipboardCheck', 'Ringkasan'],
           ['referensi', 'images', 'Referensi'],
