@@ -288,21 +288,48 @@ export async function addMoodboardComment(token, sectionId, text, author) {
   return next
 }
 
+// Cache channel per token — cegah dobel subscribe & error "cannot add callbacks after subscribe()"
+const subscribeCache = new Map()
+
 export async function subscribeProject(token, cb) {
   if (!isSupabaseConfigured || !supabase) return () => {}
+
+  // Kalau sudah ada channel untuk token ini, cukup tambahkan callback (tanpa subscribe ulang)
+  const existing = subscribeCache.get(token)
+  if (existing) {
+    existing.cbs.push(cb)
+    return () => {
+      existing.cbs = existing.cbs.filter((f) => f !== cb)
+    }
+  }
+
   try {
+    // Nama channel unik + status subscribe — hindari konflik nama channel
+    const channelName = 'mb-' + token + '-' + Date.now()
+    const entry = { cbs: [cb], channel: null, status: 'pending' }
+    subscribeCache.set(token, entry)
+
     const channel = supabase
-      .channel('mb-' + token)
+      .channel(channelName)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: TABLE('moodboards'), filter: `project_id=eq.${token}` },
-        (payload) => cb(payload),
+        (payload) => entry.cbs.forEach((f) => { try { f(payload) } catch {} }),
       )
-      .subscribe()
+      .subscribe((status) => {
+        entry.status = status
+      })
+    entry.channel = channel
+
     return () => {
-      try {
-        supabase.removeChannel(channel)
-      } catch {}
+      // Hapus callback; kalau tidak ada callback tersisa, tutup channel
+      entry.cbs = entry.cbs.filter((f) => f !== cb)
+      if (entry.cbs.length === 0) {
+        subscribeCache.delete(token)
+        try {
+          supabase.removeChannel(channel)
+        } catch {}
+      }
     }
   } catch (e) {
     logger.warn('Gagal subscribe:', e?.message || e)
