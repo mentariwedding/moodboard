@@ -49,6 +49,19 @@ select {
 }
 #root {
   overflow-x: clip;
+  width: 100%;
+}
+
+/* Kata/URL panjang tidak boleh mendorong lebar halaman */
+#root p,
+#root li,
+#root h1,
+#root h2,
+#root h3,
+#root span,
+#root a,
+#root button {
+  overflow-wrap: anywhere;
 }
 
 body {

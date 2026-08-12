@@ -91,6 +91,31 @@ if (typeof window !== 'undefined') {
  * Panel debug — overlay kecil yang menampilkan log terbaru.
  * Dibuka dengan: Ctrl+Shift+D (atau Cmd+Shift+D di Mac), atau ?debug=1 di URL.
  */
+/** Cari elemen yang melebihi lebar viewport (penyebab kepotong kanan). */
+export function findOverflowing() {
+  if (typeof document === 'undefined') return []
+  const vw = window.innerWidth
+  const out = []
+  const all = document.querySelectorAll('body *')
+  all.forEach((el) => {
+    try {
+      const r = el.getBoundingClientRect()
+      if (r.width > 0 && r.right > vw + 1) {
+        const tag = el.tagName.toLowerCase()
+        const cls = (el.className && typeof el.className === 'string' ? el.className : '').toString().slice(0, 60)
+        const txt = (el.textContent || '').trim().slice(0, 40)
+        out.push({ tag, cls, txt, right: Math.round(r.right), width: Math.round(r.width) })
+      }
+    } catch {}
+  })
+  // dedup & urut dari yang paling meluber
+  const seen = new Set()
+  return out
+    .filter((o) => { const k = o.tag + '|' + o.cls + '|' + o.txt; if (seen.has(k)) return false; seen.add(k); return true })
+    .sort((a, b) => b.right - a.right)
+    .slice(0, 25)
+}
+
 export function initDebugPanel() {
   if (typeof document === 'undefined') return
 

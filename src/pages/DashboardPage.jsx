@@ -8,7 +8,7 @@ import {
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { Btn, Badge, Card, EmptyState, Field, Spinner, Skeleton, TextArea, TextInput, useToast, Toast } from '../components/ui'
 import Icon from '../lib/icons'
-import { logger } from '../lib/debug'
+import { logger, findOverflowing } from '../lib/debug'
 import AuthPage from './AuthPage'
 import DemoAuth, { demoAuthed, lockDemo } from '../components/DemoAuth'
 import SetupNeededScreen from '../components/SetupNeededScreen'
@@ -246,6 +246,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
   const [editOpen, setEditOpen] = useState(false)
   const [lightbox, setLightbox] = useState(null) // index foto yang dibuka
   const [dupBusy, setDupBusy] = useState(false)
+  const [layoutIssues, setLayoutIssues] = useState(null)
 
   const refs = data.references || {}
   const themeIds = data.vibe?.themes || []
@@ -396,27 +397,27 @@ function ProjectDetail({ project, refresh, toastAdd }) {
             </div>
           )}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
-          <Btn kind="gold" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => {
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
+          <Btn kind="gold" size="sm" className="sm:flex-none" onClick={() => {
             if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
             window.open(waShareUrl(token, project.couple, undefined, waTarget), '_blank')
           }}><Icon name="wa" className="h-3.5 w-3.5" /> Kirim via WA</Btn>
           {status !== 'submitted' && status !== 'done' && (
-            <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => {
+            <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => {
             const rem = reminderInfo(project, waTarget)
             if (!waNumber(rem.number)) { toastAdd('Tidak ada nomor WA — isi di menu Edit dulu ya', 'info'); return }
             window.open(waReminderUrl(token, project.couple, rem.number, rem.label), '_blank')
           }}><Icon name="bell" className="h-3.5 w-3.5" /> Kirim Pengingat</Btn>
           )}
-          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Unduh Poster'}</Btn>
-          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
-          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
-          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
-          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
-          <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
-          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
-          <Btn kind="white" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" disabled={dupBusy} onClick={async () => {
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Unduh Poster'}</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
+          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" disabled={dupBusy} onClick={async () => {
             if (!confirm('Duplikat proyek ini? Isian client TIDAK disalin — hanya data proyek & catatan WO.')) return
             setDupBusy(true)
             try {
@@ -430,7 +431,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
               setDupBusy(false)
             }
           }}><Icon name="copy" className="h-3.5 w-3.5" /> {dupBusy ? 'Menduplikat…' : 'Duplikat'}</Btn>
-          <Btn kind="ghost" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] text-rose sm:flex-none sm:basis-auto" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
+          <Btn kind="ghost" size="sm" className="text-rose sm:flex-none" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
         </div>
       </div>
 
@@ -610,19 +611,19 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       {/* Actions */}
       <div className="flex flex-wrap gap-2 pt-2">
         {status !== 'done' && (
-          <Btn kind="gold" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => { window.open(url, '_blank'); toastAdd('Link dibuka di tab baru', 'external') }}><Icon name="external" className="h-3.5 w-3.5" /> Buka isian client</Btn>
+          <Btn kind="gold" size="sm" className="sm:flex-none" onClick={() => { window.open(url, '_blank'); toastAdd('Link dibuka di tab baru', 'external') }}><Icon name="external" className="h-3.5 w-3.5" /> Buka isian client</Btn>
         )}
         {status === 'submitted' && (
-          <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={async () => { await updateProjectStatus(token, 'done'); refresh(); toastAdd('Ditandai sudah diproses', 'checkCircle') }}>
+          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={async () => { await updateProjectStatus(token, 'done'); refresh(); toastAdd('Ditandai sudah diproses', 'checkCircle') }}>
             <Icon name="checkCircle" className="h-3.5 w-3.5" /> Tandai sudah diproses
           </Btn>
         )}
         {status === 'done' && (
-          <Btn kind="ghost" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={async () => { await updateProjectStatus(token, 'submitted'); refresh(); toastAdd('Status dikembalikan ke selesai', 'rotate') }}>
+          <Btn kind="ghost" size="sm" className="sm:flex-none" onClick={async () => { await updateProjectStatus(token, 'submitted'); refresh(); toastAdd('Status dikembalikan ke selesai', 'rotate') }}>
             <Icon name="rotate" className="h-3.5 w-3.5" /> Kembalikan status
           </Btn>
         )}
-        <Btn kind="ghost" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={async () => { await updateProjectStatus(token, 'invited'); refresh(); toastAdd('Status direset ke menunggu isian', 'rotate') }}>
+        <Btn kind="ghost" size="sm" className="sm:flex-none" onClick={async () => { await updateProjectStatus(token, 'invited'); refresh(); toastAdd('Status direset ke menunggu isian', 'rotate') }}>
           <Icon name="rotate" className="h-3.5 w-3.5" /> Reset status
         </Btn>
       </div>
@@ -962,6 +963,13 @@ export default function DashboardPage() {
               <Btn kind="ghost" size="sm" onClick={() => { lockDemo(); setDemoAuthedState(false) }} title="Kunci ulang dashboard"><Icon name="lock" className="h-3 w-3" /> Kunci</Btn>
             )}
             <Btn kind="gold" onClick={() => setShowCreate(true)}><Icon name="plus" className="h-3.5 w-3.5" /> Proyek Baru</Btn>
+            <button
+              onClick={() => setLayoutIssues(findOverflowing())}
+              className="inline-flex items-center gap-1 rounded-full border border-ink/15 px-2.5 py-2 text-[10px] text-stone transition hover:border-gold hover:text-gold sm:gap-1.5 sm:px-3 sm:text-[11px]"
+              title="Deteksi elemen yang kepotong di kanan layar"
+            >
+              <Icon name="search" className="h-3 w-3" /> Cek Layout
+            </button>
           </div>
         </div>
       </header>
@@ -1053,6 +1061,37 @@ export default function DashboardPage() {
         />
       )}
       <Toast toasts={toasts} remove={remove} />
+
+      {/* Hasil Cek Layout */}
+      {layoutIssues !== null && (
+        <div className="fixed inset-0 z-[99] flex items-center justify-center bg-black/50 p-4" onClick={() => setLayoutIssues(null)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-soft" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="font-display text-xl text-ink">Hasil Cek Layout</p>
+              <button onClick={() => setLayoutIssues(null)} className="flex h-7 w-7 items-center justify-center rounded-full bg-ink/10" aria-label="Tutup">
+                <Icon name="xmark" className="h-3 w-3" />
+              </button>
+            </div>
+            {layoutIssues.length === 0 ? (
+              <p className="mt-4 text-sm text-emerald-700">✓ Tidak ada elemen yang meluber — layout aman.</p>
+            ) : (
+              <>
+                <p className="mt-2 text-xs text-stone">Elemen yang melebihi lebar layar ({layoutIssues.length}):</p>
+                <div className="mt-2 max-h-72 space-y-1.5 overflow-y-auto">
+                  {layoutIssues.map((o, i) => (
+                    <div key={i} className="rounded-lg bg-cream/60 px-3 py-2 font-mono text-[10px] leading-relaxed text-ink">
+                      <b>&lt;{o.tag}&gt;</b> kanan:{o.right}px lebar:{o.width}px
+                      {o.cls && <div className="text-stone">{o.cls}</div>}
+                      {o.txt && <div className="text-stone/70 truncate">"{o.txt}"</div>}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            <button onClick={() => setLayoutIssues(null)} className="mt-4 w-full rounded-full bg-ink py-2.5 text-sm text-ivory">Tutup</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
