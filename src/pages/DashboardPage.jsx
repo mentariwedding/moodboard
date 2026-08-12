@@ -963,21 +963,14 @@ export default function DashboardPage() {
               <Btn kind="ghost" size="sm" onClick={() => { lockDemo(); setDemoAuthedState(false) }} title="Kunci ulang dashboard"><Icon name="lock" className="h-3 w-3" /> Kunci</Btn>
             )}
             <Btn kind="gold" onClick={() => setShowCreate(true)}><Icon name="plus" className="h-3.5 w-3.5" /> Proyek Baru</Btn>
-            <button
-              onClick={() => setLayoutIssues(findOverflowing())}
-              className="inline-flex items-center gap-1 rounded-full border border-ink/15 px-2.5 py-2 text-[10px] text-stone transition hover:border-gold hover:text-gold sm:gap-1.5 sm:px-3 sm:text-[11px]"
-              title="Deteksi elemen yang kepotong di kanan layar"
-            >
-              <Icon name="search" className="h-3 w-3" /> Cek Layout
-            </button>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         {!isSupabaseConfigured && (
-          <div className="mb-6 rounded-2xl border border-gold/40 bg-goldlight/20 px-5 py-4 text-sm text-[#7a5c30]">
-            <b>Mode Demo</b> — data tersimpan di browser ini saja. Supabase belum dikonfigurasi; setelah isi <code className="rounded bg-white/70 px-1.5 py-0.5">.env</code>, data tersimpan di cloud dan link bisa dipakai client di HP mereka.
+          <div className="mb-6 rounded-2xl border border-gold/40 bg-goldlight/20 px-5 py-3.5 text-[13px] leading-relaxed text-[#7a5c30]">
+            <b>Mode Demo</b> — data tersimpan di browser ini saja. Isi <code className="rounded bg-white/70 px-1.5 py-0.5">.env</code> untuk simpan di cloud.
           </div>
         )}
 
@@ -991,7 +984,17 @@ export default function DashboardPage() {
         ) : (
           <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             {/* Sidebar */}
-            <aside className="space-y-3">
+            <aside className="min-w-0 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone">Daftar Proyek</p>
+                <button
+                  onClick={() => setLayoutIssues(findOverflowing())}
+                  className="inline-flex items-center gap-1 rounded-full border border-ink/15 px-2.5 py-1 text-[10px] text-stone transition hover:border-gold hover:text-gold"
+                  title="Deteksi elemen yang kepotong di kanan layar"
+                >
+                  <Icon name="search" className="h-2.5 w-2.5" /> Cek Layout
+                </button>
+              </div>
               <div className="relative">
                 <TextInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari pasangan / venue…" className="!py-2 pl-9 text-xs" />
                 <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone/60" />
