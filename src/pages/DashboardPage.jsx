@@ -246,7 +246,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
   const [editOpen, setEditOpen] = useState(false)
   const [lightbox, setLightbox] = useState(null) // index foto yang dibuka
   const [dupBusy, setDupBusy] = useState(false)
-
+  const [layoutIssues, setLayoutIssues] = useState(null)
 
   const refs = data.references || {}
   const themeIds = data.vibe?.themes || []
@@ -376,64 +376,63 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           ))}
         </div>
       )}
-      {/* Nama pasangan + meta */}
-      <div className="min-w-0">
-        <p className="break-words font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone">
-          <StatusBadge status={status} />
-          {project.date && <span className="inline-flex items-center gap-1"><Icon name="calendar" className="h-3.5 w-3.5 shrink-0" /> {formatDate(project.date)}</span>}
-          {project.venue && <span className="inline-flex items-center gap-1"><Icon name="location" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.venue}</span></span>}
-          {days !== null && days >= 0 && <span className="inline-flex items-center gap-1"><Icon name="heart" className="h-3.5 w-3.5" /> H-{days}</span>}
-          {project.client_wa && <span className="inline-flex items-center gap-1"><Icon name="phone" className="h-3.5 w-3.5 shrink-0" /> {project.client_wa}</span>}
-          {(project.mb?.updated_at || project.updated_at) && (
-            <span className="inline-flex items-center gap-1 text-stone/70"><Icon name="clock" className="h-3.5 w-3.5 shrink-0" /> diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 max-w-full flex-1">
+          <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-stone">
+            <StatusBadge status={status} />
+            {project.date && <span className="inline-flex max-w-full items-center gap-1"><Icon name="calendar" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{formatDate(project.date)}</span></span>}
+            {project.venue && <span className="inline-flex max-w-full items-center gap-1"><Icon name="location" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.venue}</span></span>}
+            {days !== null && days >= 0 && <span className="inline-flex items-center gap-1"><Icon name="heart" className="h-3.5 w-3.5" /> H-{days}</span>}
+            {project.client_wa && <span className="inline-flex max-w-full items-center gap-1"><Icon name="phone" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.client_wa}</span></span>}
+            {(project.mb?.updated_at || project.updated_at) && (
+              <span className="inline-flex max-w-full items-center gap-1 text-stone/70"><Icon name="clock" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span></span>
+            )}
+          </div>
+          {project.couple_mode && cd && (
+            <div className="mt-2 flex flex-wrap gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/25 px-3 py-1 text-[#7a5c30]"><Icon name="users" className="h-3 w-3" /> Mode isi bareng</span>
+              <span className="rounded-full bg-cream px-3 py-1 text-stone">Mempelai 1: {progOne}%</span>
+              <span className="rounded-full bg-cream px-3 py-1 text-stone">Mempelai 2: {progTwo}%</span>
+            </div>
           )}
         </div>
-        {project.couple_mode && cd && (
-          <div className="mt-2 flex flex-wrap gap-2 text-xs">
-            <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/25 px-3 py-1 text-[#7a5c30]"><Icon name="users" className="h-3 w-3" /> Mode isi bareng</span>
-            <span className="rounded-full bg-cream px-3 py-1 text-stone">Mempelai 1: {progOne}%</span>
-            <span className="rounded-full bg-cream px-3 py-1 text-stone">Mempelai 2: {progTwo}%</span>
-          </div>
-        )}
-      </div>
-
-      {/* Action buttons — full-width grid on mobile */}
-      <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-        <Btn kind="outline" size="sm" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
-        <Btn kind="gold" size="sm" onClick={() => {
-          if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
-          window.open(waShareUrl(token, project.couple, undefined, waTarget), '_blank')
-        }}><Icon name="wa" className="h-3.5 w-3.5" /> Kirim via WA</Btn>
-        {status !== 'submitted' && status !== 'done' && (
-          <Btn kind="outline" size="sm" onClick={() => {
-          const rem = reminderInfo(project, waTarget)
-          if (!waNumber(rem.number)) { toastAdd('Tidak ada nomor WA — isi di menu Edit dulu ya', 'info'); return }
-          window.open(waReminderUrl(token, project.couple, rem.number, rem.label), '_blank')
-        }}><Icon name="bell" className="h-3.5 w-3.5" /> Pengingat</Btn>
-        )}
-        <Btn kind="white" size="sm" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Poster'}</Btn>
-        <Btn kind="white" size="sm" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak</Btn>
-        <Btn kind="white" size="sm" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> CSV</Btn>
-        <Btn kind="white" size="sm" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR</Btn>
-        <Btn kind="white" size="sm" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Kalender</Btn>
-        <Btn kind="outline" size="sm" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Pasangan</Btn>
-        <Btn kind="white" size="sm" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
-        <Btn kind="white" size="sm" disabled={dupBusy} onClick={async () => {
-          if (!confirm('Duplikat proyek ini? Isian client TIDAK disalin — hanya data proyek & catatan WO.')) return
-          setDupBusy(true)
-          try {
-            const newToken = await duplicateProject(token)
-            await refresh()
-            toastAdd('Proyek duplikat dibuat!', 'copy')
-            setSelected((await listProjects()).find((x) => x.token === newToken) || null)
-          } catch (e) {
-            toastAdd('Gagal duplikat: ' + e.message, 'info')
-          } finally {
-            setDupBusy(false)
-          }
-        }}><Icon name="copy" className="h-3.5 w-3.5" /> {dupBusy ? 'Menduplikat…' : 'Duplikat'}</Btn>
-        <Btn kind="ghost" size="sm" className="text-rose" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
+          <Btn kind="gold" size="sm" className="sm:flex-none" onClick={() => {
+            if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
+            window.open(waShareUrl(token, project.couple, undefined, waTarget), '_blank')
+          }}><Icon name="wa" className="h-3.5 w-3.5" /> Kirim via WA</Btn>
+          {status !== 'submitted' && status !== 'done' && (
+            <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => {
+            const rem = reminderInfo(project, waTarget)
+            if (!waNumber(rem.number)) { toastAdd('Tidak ada nomor WA — isi di menu Edit dulu ya', 'info'); return }
+            window.open(waReminderUrl(token, project.couple, rem.number, rem.label), '_blank')
+          }}><Icon name="bell" className="h-3.5 w-3.5" /> Kirim Pengingat</Btn>
+          )}
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Unduh Poster'}</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
+          <Btn kind="outline" size="sm" className="sm:flex-none" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
+          <Btn kind="white" size="sm" className="sm:flex-none" disabled={dupBusy} onClick={async () => {
+            if (!confirm('Duplikat proyek ini? Isian client TIDAK disalin — hanya data proyek & catatan WO.')) return
+            setDupBusy(true)
+            try {
+              const newToken = await duplicateProject(token)
+              await refresh()
+              toastAdd('Proyek duplikat dibuat!', 'copy')
+              setSelected((await listProjects()).find((x) => x.token === newToken) || null)
+            } catch (e) {
+              toastAdd('Gagal duplikat: ' + e.message, 'info')
+            } finally {
+              setDupBusy(false)
+            }
+          }}><Icon name="copy" className="h-3.5 w-3.5" /> {dupBusy ? 'Menduplikat…' : 'Duplikat'}</Btn>
+          <Btn kind="ghost" size="sm" className="text-rose sm:flex-none" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
+        </div>
       </div>
 
       {/* Link per mempelai (mode bareng) */}
@@ -810,7 +809,6 @@ export default function DashboardPage() {
   const [demoAuthedState, setDemoAuthedState] = useState(() => (isSupabaseConfigured ? true : demoAuthed()))
   const [setupNeeded, setSetupNeeded] = useState(false)
   const [setupDetail, setSetupDetail] = useState('')
-  const [layoutIssues, setLayoutIssues] = useState(null)
   const { toasts, add, remove } = useToast()
 
   useEffect(() => {
@@ -923,7 +921,7 @@ export default function DashboardPage() {
             <Skeleton className="h-10 w-32 rounded-full" />
           </div>
         </header>
-        <main className="mx-auto max-w-6xl px-4 py-8">
+        <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8">
           <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             <aside className="min-w-0 space-y-3">
               <Skeleton className="h-9 w-full" />
@@ -946,7 +944,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-ivory">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-ivory">
       <header className="sticky top-0 z-40 border-b border-ink/5 bg-ivory/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:py-4">
           <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
@@ -958,16 +956,16 @@ export default function DashboardPage() {
               <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-gold sm:text-[11px]">Dashboard Moodboard</p>
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {isSupabaseConfigured ? (
               <Btn kind="ghost" size="sm" onClick={() => supabase.auth.signOut()}>Keluar</Btn>
             ) : (
               <Btn kind="ghost" size="sm" onClick={() => { lockDemo(); setDemoAuthedState(false) }} title="Kunci ulang dashboard"><Icon name="lock" className="h-3 w-3" /> Kunci</Btn>
             )}
-            <Btn kind="gold" onClick={() => setShowCreate(true)}><Icon name="plus" className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Proyek</span> Baru</Btn>
+            <Btn kind="gold" onClick={() => setShowCreate(true)}><Icon name="plus" className="h-3.5 w-3.5" /> Proyek Baru</Btn>
             <button
               onClick={() => setLayoutIssues(findOverflowing())}
-              className="hidden items-center gap-1.5 rounded-full border border-ink/15 px-3 py-2 text-[11px] text-stone transition hover:border-gold hover:text-gold sm:inline-flex"
+              className="inline-flex items-center gap-1 rounded-full border border-ink/15 px-2.5 py-2 text-[10px] text-stone transition hover:border-gold hover:text-gold sm:gap-1.5 sm:px-3 sm:text-[11px]"
               title="Deteksi elemen yang kepotong di kanan layar"
             >
               <Icon name="search" className="h-3 w-3" /> Cek Layout

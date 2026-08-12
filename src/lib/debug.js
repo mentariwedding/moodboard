@@ -130,7 +130,7 @@ export function initDebugPanel() {
     right: '12px',
     bottom: '12px',
     zIndex: '99999',
-    width: 'min(420px, calc(100vw - 24px))',
+    width: Math.min(420, window.innerWidth - 24) + 'px',
     maxHeight: '60vh',
     background: 'rgba(20,18,16,0.94)',
     color: '#e8e4de',
@@ -199,17 +199,20 @@ export function initDebugPanel() {
   const escapeHtml = (s) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-  document.body.appendChild(panel)
-  logger.subscribe(() => { if (open) render() })
-  render()
+  const ensureMounted = () => {
+    if (!panel.isConnected) document.body.appendChild(panel)
+    render()
+  }
+  if (open) ensureMounted()
+  logger.subscribe(() => { if (open) ensureMounted() })
 
   // Shortcut Ctrl+Shift+D
   window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
       e.preventDefault()
       open = !open
-      panel.style.display = open ? 'block' : 'none'
-      if (open) render()
+      if (open) ensureMounted()
+      else panel.style.display = 'none'
     }
   })
 }

@@ -17,8 +17,9 @@ html {
 /* Cegah scroll horizontal — penyebab margin kanan "mepet/terpotong" di iPhone */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
+  width: 100%;
 }
 
 /* Proteksi global anti-meluber (khususnya iPhone/layar sempit) */
@@ -50,6 +51,7 @@ select {
 #root {
   overflow-x: clip;
   width: 100%;
+  max-width: 100%;
 }
 
 /* Kata/URL panjang tidak boleh mendorong lebar halaman */
