@@ -7,7 +7,7 @@ import Petals from '../components/Petals'
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-wedding-pattern bg-ivory">
+    <div className="min-h-screen overflow-x-hidden bg-wedding-pattern bg-ivory">
       {/* Hero */}
       <header className="relative overflow-hidden">
         <Petals count={12} />

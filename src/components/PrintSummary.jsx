@@ -60,6 +60,7 @@ function SectionBlock({ s, sec }) {
     add('brush', 'Rias', d.makeup)
     add('tie', 'Pria', d.groom)
     add('feather', 'Catatan', d.notes)
+    if (d.outfitPhoto) rows.push({ icon: 'look', label: 'Foto gaun', value: 'ada (lihat lampiran)' })
   } else if (s.id === 'ceremony') {
     add('ceremony', 'Format', d.format)
     add('clock', 'Jam mulai', d.time)

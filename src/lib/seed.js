@@ -43,7 +43,6 @@ export function buildDemoData() {
       note: 'Proyek contoh — coba buka link dan lihat tampilan dari sisi client.',
       status: 'invited',
       couple_mode: true,
-      pin: '1234',
       client_wa: '081234567890',
       staff_notes: { decor: 'Ganti bunga jadi artificial — budget', look: 'Gaun coba warna ivory' },
     },

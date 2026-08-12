@@ -198,7 +198,7 @@ export function Toast({ toasts, remove }) {
   }, [toasts, remove])
 
   return (
-    <div className="fixed bottom-5 left-1/2 z-[100] flex -translate-x-1/2 flex-col items-center gap-2">
+    <div className="fixed left-1/2 z-[100] flex -translate-x-1/2 flex-col items-center gap-2" style={{ bottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}>
       {toasts.map((t) => (
         <div
           key={t.id}

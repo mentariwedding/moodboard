@@ -24,7 +24,6 @@ create table if not exists mw_projects (
   status text not null default 'invited'
     check (status in ('invited', 'partial', 'submitted', 'done')),
   couple_mode boolean not null default false, -- mode isi bareng: 2 link (mempelai 1 & 2)
-  pin text not null default '',               -- kode akses client (4-6 digit, opsional)
   client_wa text not null default '',          -- nomor WA client (tujuan tombol Kirim via WA)
   staff_notes jsonb not null default '{}'::jsonb, -- catatan/keputusan WO per seksi
   created_at timestamptz not null default now()

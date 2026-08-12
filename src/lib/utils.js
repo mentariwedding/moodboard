@@ -81,11 +81,10 @@ export function waNumber(raw) {
   return n
 }
 
-export function waShareUrl(token, coupleName, who, pin, number) {
+export function waShareUrl(token, coupleName, who, number) {
   const url = shareUrl(token, who, coupleName)
   const whoLabel = who === 'two' ? ' (mempelai 2)' : who === 'one' ? ' (mempelai 1)' : ''
-  const pinLine = pin ? `\n🔒 Kode akses moodboard: ${pin}` : ''
-  const text = `Halo ${coupleName || 'kamu'} 🎀\nIni moodboard pernikahan kita — isi sesuai keinginan ya, tinggal klik link di bawah ini${whoLabel}:\n${url}${pinLine}\n\nTerima kasih! — Mentari Wedding`
+  const text = `Halo ${coupleName || 'kamu'} 🎀\nIni moodboard pernikahan kita — isi sesuai keinginan ya, tinggal klik link di bawah ini${whoLabel}:\n${url}\n\nTerima kasih! — Mentari Wedding`
   const num = waNumber(number)
   return `https://wa.me/${num ? num : ""}?text=${encodeURIComponent(text)}`
 }

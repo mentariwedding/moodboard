@@ -16,7 +16,6 @@ import { filledSections } from '../lib/utils'
 import WizardShell from '../components/WizardShell'
 import SubmittedScreen from '../components/SubmittedScreen'
 import SaveTheDate from '../components/SaveTheDate'
-import AccessGate from '../components/AccessGate'
 import ClosedScreen from '../components/ClosedScreen'
 import Icon from '../lib/icons'
 import { Skeleton } from '../components/ui'
@@ -64,7 +63,6 @@ export default function MoodboardPage() {
   const [submitted, setSubmitted] = useState(false)
   const [splash, setSplash] = useState(false) // Save-the-Date Card saat mulai dari nol
   const [saving, setSaving] = useState(false)
-  const [locked, setLocked] = useState(false) // terkunci kode akses (PIN)
   const [closed, setClosed] = useState(false) // diproses WO — isian terkunci total
   const [autoSaveState, setAutoSaveState] = useState('idle')
 
@@ -110,7 +108,6 @@ export default function MoodboardPage() {
           setSplash(!row?.data || filledSections(row.data) === 0)
         }
         setComments(row?.comments || {})
-        setLocked(Boolean(p.pin) && !(localStorage.getItem(`mw_unlock_${token}`) === '1'))
         setClosed(p.status === 'done')
         dirtyRef.current = false
         setStatus('ready')
@@ -180,10 +177,6 @@ export default function MoodboardPage() {
       logger.info('Moodboard disubmit', { token, who, seksi_terisi: filledSections(data) })
       dirtyRef.current = false
       setAutoSaveState('idle')
-      // Setelah submit, moodboard terkunci lagi — revisi butuh kode akses
-      try {
-        localStorage.removeItem(`mw_unlock_${token}`)
-      } catch {}
       setSubmitted(true)
     } catch (e) {
       alert('Gagal mengirim: ' + e.message)
@@ -261,22 +254,6 @@ export default function MoodboardPage() {
         project={project}
         onBack={() => {
           setSubmitted(false)
-          // Revisi setelah submit = buka kunci lagi
-          setLocked(Boolean(project?.pin))
-        }}
-      />
-    )
-  }
-
-  if (locked) {
-    return (
-      <AccessGate
-        project={project}
-        onUnlock={() => {
-          try {
-            localStorage.setItem(`mw_unlock_${token}`, '1')
-          } catch {}
-          setLocked(false)
         }}
       />
     )

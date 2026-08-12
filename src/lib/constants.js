@@ -210,7 +210,7 @@ export const EMPTY_DATA = {
   vibe: { themes: [], keywords: '', vibes: [] },
   colors: { palette: [], paletteName: '', avoid: ['', ''] },
   decor: { stage: '', flowersSource: '', flowersLike: [], lighting: [], tables: '', signage: [], notes: '' },
-  look: { dress: '', dressAccent: '', makeup: '', groom: '', accessories: '', notes: '' },
+  look: { dress: '', dressAccent: '', makeup: '', groom: '', accessories: '', outfitPhoto: '', notes: '' },
   ceremony: { format: '', time: '', traditions: [], entertainment: [], music: [], notes: '' },
   feast: { style: '', mustHave: '', allergies: '', cake: '', notes: '' },
   stationery: { type: '', style: [], monogram: '', fontStyle: '', notes: '' },

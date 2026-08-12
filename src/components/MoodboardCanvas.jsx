@@ -21,6 +21,7 @@ function boardContent(data) {
   add('sprout', 'Bunga', data.decor?.flowersLike)
   add('lightbulb', 'Lighting', data.decor?.lighting)
   add('look', 'Gaun', data.look?.dress)
+  if (data.look?.outfitPhoto) chips.push({ icon: 'look', label: 'Foto gaun', value: 'ada foto referensi' })
   add('brush', 'Rias', data.look?.makeup)
   add('tie', 'Pria', data.look?.groom)
   add('ceremony', 'Acara', data.ceremony?.format)
@@ -213,7 +214,7 @@ export default function MoodboardCanvas({ data, project }) {
       {/* Mobile: tombol melayang — di atas bottom nav, tidak menutupi tombol Submit */}
       <button
         onClick={() => setSheet(true)}
-        className="fixed bottom-[104px] right-4 z-40 flex h-13 w-13 items-center justify-center rounded-full text-white shadow-soft transition hover:scale-105 xl:hidden"
+        className="fixed z-40 flex items-center justify-center rounded-full text-white shadow-soft transition hover:scale-105 xl:hidden" style={{ bottom: 'calc(104px + env(safe-area-inset-bottom, 0px))', right: 'calc(16px + env(safe-area-inset-right, 0px))', height: 52, width: 52 }}
         style={{ background: 'var(--accent, #B08D57)', height: 52, width: 52 }}
         title="Lihat moodboard"
       >
@@ -232,7 +233,7 @@ export default function MoodboardCanvas({ data, project }) {
             className="fixed inset-0 z-50 bg-black/35 animate-[fadeIn_.2s_ease] xl:hidden"
             onClick={() => setSheet(false)}
           />
-          <div className="fixed inset-x-0 bottom-0 z-50 max-h-[78vh] overflow-y-auto rounded-t-3xl bg-ivory p-4 pb-8 shadow-2xl animate-[slideUp_.3s_ease] xl:hidden">
+          <div className="fixed inset-x-0 bottom-0 z-50 max-h-[78vh] overflow-y-auto rounded-t-3xl bg-ivory p-4 shadow-2xl animate-[slideUp_.3s_ease] xl:hidden" style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))' }}>
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-ink/15" />
             <div className="flex items-center justify-between px-1">
               <p className="inline-flex items-center gap-2 font-display text-xl text-ink">

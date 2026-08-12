@@ -28,7 +28,7 @@ function demoSave(p) {
 // PROYEK (diisi oleh WO)
 // ============================================================
 
-export async function createProject({ couple, venue, date, note, coupleMode, pin, clientWa }) {
+export async function createProject({ couple, venue, date, note, coupleMode, clientWa }) {
   const token = makeToken()
   if (isSupabaseConfigured) {
     const { error } = await supabase.from(TABLE('projects')).insert({
@@ -39,7 +39,6 @@ export async function createProject({ couple, venue, date, note, coupleMode, pin
       note: note || '',
       status: 'invited',
       couple_mode: Boolean(coupleMode),
-      pin: pin || '',
       client_wa: clientWa || '',
     })
     if (error) { logger.error('API error', error); throw new Error(error.message) }
@@ -53,7 +52,6 @@ export async function createProject({ couple, venue, date, note, coupleMode, pin
     note: note || '',
     status: 'invited',
     couple_mode: Boolean(coupleMode),
-    pin: pin || '',
     client_wa: clientWa || '',
     created: new Date().toISOString(),
   })
@@ -161,7 +159,6 @@ export async function duplicateProject(token) {
     date: p.date,
     note: p.note,
     coupleMode: p.couple_mode,
-    pin: p.pin,
     clientWa: p.client_wa,
   })
   // Salin catatan WO (staff notes) ke proyek baru — isian client TIDAK disalin
@@ -169,12 +166,6 @@ export async function duplicateProject(token) {
     await updateStaffNotes(newToken, p.staff_notes)
   }
   return newToken
-}
-
-export function makePin(len = 6) {
-  let pin = ''
-  for (let i = 0; i < len; i++) pin += Math.floor(Math.random() * 10)
-  return pin
 }
 
 export async function updateProjectStatus(token, status) {

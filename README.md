@@ -82,8 +82,6 @@ npm run build     # build produksi ke dist/
 ## Keamanan
 
 - **Client tidak perlu akun**: keamanan berbasis token — token ada di URL (seperti magic link) dan dipakai sebagai header `x-project-token` untuk aturan RLS di Supabase.
-- **🔒 Kode akses (PIN)**: setiap proyek bisa punya kode 4–6 digit — client harus memasukkan kode (sekali per perangkat) sebelum melihat/mengisi moodboard. Kode otomatis disertakan di pesan WhatsApp. Anti orang iseng & pelindung data pribadi pasangan (nomor WA, budget, alergi). 5× salah kode → terkunci 1 menit.
-- **🔁 Terkunci lagi setelah submit**: revisi isian setelah submit butuh kode akses lagi.
 - **Dashboard WO** dilindungi login email (Supabase Auth) — hanya yang login bisa melihat data client.
 - Foto referensi client hanya bisa diunggah/dibaca lewat folder token masing-masing (aturan storage).
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createProject, listProjects, deleteProject, updateProjectStatus, updateProject, subscribeProject, makePin, updateStaffNotes, isSetupError, addMoodboardComment, duplicateProject } from '../lib/api'
+import { createProject, listProjects, deleteProject, updateProjectStatus, updateProject, subscribeProject, updateStaffNotes, isSetupError, addMoodboardComment, duplicateProject } from '../lib/api'
 import { SECTIONS, THEMES, PRIORITY_ITEMS, FONT_STYLES, INSPIRATION_GALLERY } from '../lib/constants'
 import {
   computeProgress, copyText, formatDate, isSectionFilled, shareUrl, coupleUrl, waShareUrl, waReminderUrl, waNumber, linkType, timeAgo, todayISO, toCsv, downloadCsv, makeIcs, downloadIcs,
@@ -108,6 +108,17 @@ function SectionSummary({ id, s }) {
     add('Rias', s.makeup)
     add('Pria', s.groom)
     add('Catatan', s.notes)
+    if (s.outfitPhoto) {
+      return (
+        <div className="space-y-1.5 text-sm">
+          {show.length ? <ul className="space-y-1">{show.map((x, i) => <li key={i}>{x}</li>)}</ul> : null}
+          <div>
+            <p className="mb-1 inline-flex items-center gap-1 text-[12px] text-stone"><Icon name="look" className="h-3 w-3 text-gold" /> Foto referensi gaun</p>
+            <img src={s.outfitPhoto} alt="Referensi gaun" className="h-32 w-full rounded-xl object-cover border border-ink/10" />
+          </div>
+        </div>
+      )
+    }
   } else if (id === 'ceremony') {
     add('Format', s.format)
     add('Jam mulai', s.time)
@@ -227,7 +238,6 @@ function ProjectDetail({ project, refresh, toastAdd }) {
   const [posterBusy, setPosterBusy] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
-  const [showPin, setShowPin] = useState(false)
   const [lightbox, setLightbox] = useState(null) // index foto yang dibuka
   const [dupBusy, setDupBusy] = useState(false)
 
@@ -384,7 +394,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
           <Btn kind="gold" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => {
             if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
-            window.open(waShareUrl(token, project.couple, undefined, project.pin, waTarget), '_blank')
+            window.open(waShareUrl(token, project.couple, undefined, waTarget), '_blank')
           }}><Icon name="wa" className="h-3.5 w-3.5" /> Kirim via WA</Btn>
           {status !== 'submitted' && status !== 'done' && (
             <Btn kind="outline" size="sm" className="flex-1 basis-[calc(50%-0.5rem)] sm:flex-none sm:basis-auto" onClick={() => {
@@ -418,51 +428,6 @@ function ProjectDetail({ project, refresh, toastAdd }) {
         </div>
       </div>
 
-      {/* Kode akses client */}
-      {project.pin ? (
-        <Card className="border-gold/30 bg-goldlight/10">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold text-white shadow-soft">
-                <Icon name="lock" className="h-4 w-4" />
-              </span>
-              <div>
-                <p className="text-sm font-medium text-ink">Kode akses client</p>
-                <p className="text-xs text-stone">
-                  Client butuh kode ini untuk membuka moodboard — sudah otomatis disertakan di pesan WA.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-xl border border-gold/40 bg-white px-3 py-2 font-mono text-base font-bold tracking-[0.2em] text-ink sm:px-4 sm:text-lg sm:tracking-[0.3em]">
-                {showPin ? project.pin : '••••••'}
-              </span>
-              <button
-                onClick={() => setShowPin(!showPin)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/10 bg-white text-stone transition hover:text-gold"
-                title={showPin ? 'Sembunyikan kode' : 'Tampilkan kode'}
-              >
-                <Icon name={showPin ? 'eyeSlash' : 'eye'} className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => { copyText(String(project.pin)); toastAdd('Kode disalin!', 'copy') }}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/10 bg-white text-stone transition hover:text-gold"
-                title="Salin kode"
-              >
-                <Icon name="copy" className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        </Card>
-      ) : (
-        <Card className="border-ink/5">
-          <p className="inline-flex items-center gap-2 text-sm text-stone">
-            <Icon name="lock" className="h-3.5 w-3.5 text-stone/60" />
-            Tanpa kode akses — siapa pun yang punya link bisa membuka moodboard. Aktifkan di menu Edit untuk keamanan ekstra.
-          </p>
-        </Card>
-      )}
-
       {/* Link per mempelai (mode bareng) */}
       {project.couple_mode && (
         <Card className="bg-goldlight/10">
@@ -479,7 +444,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
                 <button onClick={() => {
                   const num = w === 'one' ? cd?.one?.couple?.wa || waTarget : cd?.two?.couple?.wa || waTarget
                   if (!waNumber(num)) { toastAdd('Tidak ada nomor WA mempelai ini', 'info'); return }
-                  window.open(waShareUrl(token, `${project.couple} (${label})`, w, project.pin, num), '_blank')
+                  window.open(waShareUrl(token, `${project.couple} (${label})`, w, num), '_blank')
                 }} className="text-xs text-gold hover:underline">WA</button>
               </div>
             ))}
@@ -688,14 +653,11 @@ function EditModal({ project, onClose, onSaved }) {
   const [date, setDate] = useState(project.date || '')
   const [note, setNote] = useState(project.note || '')
   const [clientWa, setClientWa] = useState(project.client_wa || '')
-  const [pin, setPin] = useState(project.pin || '')
   const [busy, setBusy] = useState(false)
 
   const submit = async () => {
     if (!couple.trim()) return alert('Nama pasangan wajib diisi.')
     if (clientWa.trim() && !waNumber(clientWa)) return alert('Nomor WA client tampak kurang lengkap — periksa kembali.')
-    const finalPin = pin.trim()
-    if (finalPin && !/^[0-9]{4,6}$/.test(finalPin)) return alert('Kode akses harus 4–6 digit angka.')
     setBusy(true)
     try {
       await updateProject(project.token, {
@@ -703,7 +665,6 @@ function EditModal({ project, onClose, onSaved }) {
         venue: venue.trim(),
         date: date || null,
         note: note.trim(),
-        pin: finalPin,
         client_wa: clientWa.trim(),
       })
       onSaved()
@@ -737,25 +698,6 @@ function EditModal({ project, onClose, onSaved }) {
             <TextInput type="tel" value={clientWa} onChange={(e) => setClientWa(e.target.value)} placeholder="cth: 081234567890" />
             {clientWa.trim() && !waNumber(clientWa) && <p className="mt-1 text-[11px] text-rose">Nomor tampak kurang lengkap — periksa kembali.</p>}
           </Field>
-          <Field label="Kode akses (PIN)" hint="Kosongkan untuk menonaktifkan — client bisa langsung membuka link">
-            <div className="flex items-center gap-2">
-              <TextInput
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-                inputMode="numeric"
-                className="font-mono !text-lg tracking-[0.35em]"
-                placeholder="4–6 digit"
-              />
-              <button
-                type="button"
-                onClick={() => setPin(makePin(6))}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-white text-stone transition hover:text-gold"
-                title="Acak kode"
-              >
-                <Icon name="dice" className="h-4 w-4" />
-              </button>
-            </div>
-          </Field>
         </div>
         <div className="mt-6 flex gap-3">
           <Btn kind="outline" onClick={onClose} className="flex-1">Batal</Btn>
@@ -775,18 +717,14 @@ function CreateModal({ onClose, onCreated }) {
   const [note, setNote] = useState('')
   const [clientWa, setClientWa] = useState('')
   const [coupleMode, setCoupleMode] = useState(false)
-  const [pinEnabled, setPinEnabled] = useState(true)
-  const [pin, setPin] = useState(() => makePin(6))
   const [busy, setBusy] = useState(false)
 
   const submit = async () => {
     if (!couple.trim()) return alert('Nama pasangan wajib diisi.')
     if (clientWa.trim() && !waNumber(clientWa)) return alert('Nomor WA client tampak kurang lengkap — periksa kembali (cth: 081234567890).')
-    const finalPin = pinEnabled ? pin.trim() : ''
-    if (finalPin && !/^[0-9]{4,6}$/.test(finalPin)) return alert('Kode akses harus 4–6 digit angka.')
     setBusy(true)
     try {
-      const token = await createProject({ couple: couple.trim(), venue, date: date || null, note, coupleMode, pin: finalPin, clientWa: clientWa.trim() })
+      const token = await createProject({ couple: couple.trim(), venue, date: date || null, note, coupleMode, clientWa: clientWa.trim() })
       onCreated(token)
     } catch (e) {
       alert('Gagal membuat proyek: ' + e.message)
@@ -818,41 +756,6 @@ function CreateModal({ onClose, onCreated }) {
             <TextInput type="tel" value={clientWa} onChange={(e) => setClientWa(e.target.value)} placeholder="cth: 081234567890" />
             {clientWa.trim() && !waNumber(clientWa) && <p className="mt-1 text-[11px] text-rose">Nomor tampak kurang lengkap — periksa kembali.</p>}
           </Field>
-          <button
-            type="button"
-            onClick={() => setPinEnabled(!pinEnabled)}
-            className={`flex w-full items-center gap-3 rounded-2xl border-2 p-4 text-left transition ${pinEnabled ? 'border-gold bg-goldlight/15' : 'border-ink/10 hover:border-gold/40'}`}
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold">
-              <Icon name="lock" className="h-5 w-5" />
-            </span>
-            <span className="flex-1">
-              <span className="block text-sm font-medium text-ink">Kode akses (PIN) 🔒</span>
-              <span className="block text-xs text-stone">Client memasukkan kode sebelum mengisi — anti orang iseng. Kode otomatis disertakan di pesan WA.</span>
-            </span>
-            <span className={`flex h-5 w-10 items-center rounded-full p-0.5 transition ${pinEnabled ? 'bg-gold justify-end' : 'bg-ink/15 justify-start'}`}>
-              <span className="h-4 w-4 rounded-full bg-white shadow" />
-            </span>
-          </button>
-          {pinEnabled && (
-            <div className="flex items-center gap-2">
-              <TextInput
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-                inputMode="numeric"
-                className="font-mono !text-lg tracking-[0.35em]"
-                placeholder="4–6 digit"
-              />
-              <button
-                type="button"
-                onClick={() => setPin(makePin(6))}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-white text-stone transition hover:text-gold"
-                title="Acak kode"
-              >
-                <Icon name="dice" className="h-4 w-4" />
-              </button>
-            </div>
-          )}
           <button
             type="button"
             onClick={() => setCoupleMode(!coupleMode)}
@@ -996,7 +899,7 @@ export default function DashboardPage() {
 
   if (projects === null) {
     return (
-      <div className="min-h-screen bg-wedding-pattern bg-ivory">
+      <div className="min-h-screen overflow-x-hidden bg-wedding-pattern bg-ivory">
         <header className="border-b border-ink/5 bg-ivory/90">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
             <Skeleton className="h-9 w-44" />

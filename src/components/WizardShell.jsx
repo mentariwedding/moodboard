@@ -114,7 +114,7 @@ export default function WizardShell({
   const pctAnim = useCountUp(pct)
 
   return (
-    <div ref={scrollRef} className="min-h-screen bg-wedding-pattern bg-ivory">
+    <div ref={scrollRef} className="min-h-screen overflow-x-hidden bg-wedding-pattern bg-ivory">
       {/* Top bar */}
       <header className="sticky top-0 z-40 border-b border-ink/5 bg-ivory/90 backdrop-blur">
         <div className="mx-auto max-w-3xl px-4 py-3">
@@ -206,7 +206,7 @@ export default function WizardShell({
       {/* Stepper + Content + Canvas */}
       <div className="mx-auto max-w-6xl px-4 xl:grid xl:grid-cols-[minmax(0,1fr)_310px] xl:gap-8">
         <div className="min-w-0">
-          <nav className="mx-auto max-w-3xl overflow-x-auto pt-4">
+          <nav className="mx-auto max-w-3xl overflow-x-auto pt-4 pb-1 [scrollbar-width:none]">
         <div className="flex w-max gap-1.5 pb-1">
           {SECTIONS.map((s, i) => {
             const done = filledSections({ [s.id]: data[s.id] }) > 0
@@ -267,7 +267,7 @@ export default function WizardShell({
       </div>
 
       {/* Bottom nav */}
-      <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/5 bg-white/90 backdrop-blur">
+      <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/5 bg-white/90 backdrop-blur" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3.5">
           <button
             onClick={() => go(-1)}
