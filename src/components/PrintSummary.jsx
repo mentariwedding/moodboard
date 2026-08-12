@@ -195,7 +195,7 @@ export default function PrintSummary({ project, data }) {
           <p className="mb-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8a6a3a]">
             <Icon name="images" className="h-2.5 w-2.5" /> Foto Referensi ({refs.length})
           </p>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {refs.slice(0, 8).map((img, i) => (
               <img
                 key={i}

@@ -133,7 +133,7 @@ export function Board({ data, project, scrollable = true }) {
                 <p className="mb-1.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-stone">
                   <Icon name="cameraRetro" className="h-3 w-3" /> Referensi kalian
                 </p>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
                   {refs.slice(0, 6).map((img, i) => (
                     <img
                       key={i}

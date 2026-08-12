@@ -33,7 +33,7 @@ export default function LandingPage() {
             <Link to="/mb/demo?who=one"><Btn kind="outline" size="lg"><Icon name="eye" className="h-4 w-4" /> Coba isi moodboard contoh</Btn></Link>
           </div>
           {/* hero collage */}
-          <div className="mt-12 grid grid-cols-4 gap-3 sm:gap-4">
+          <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
             {['garden', 'royal', 'minimalist', 'bohemian'].map((t, i) => (
               <div key={t} className={`overflow-hidden rounded-2xl shadow-soft ${i === 1 || i === 2 ? 'translate-y-4' : ''}`}>
                 <img src={`/themes/${t}.jpg`} alt={t} className="aspect-[3/4] w-full object-cover transition duration-500 hover:scale-105" loading="lazy" />

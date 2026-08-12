@@ -380,34 +380,37 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm">
             <StatusBadge status={status} />
+          </div>
+          {/* Info utama — grid 2 kolom berlabel, rapi di layar sempit */}
+          <div className="mt-2 grid grid-cols-2 gap-2">
             {project.date && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
-                <Icon name="calendar" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{formatDate(project.date)}</span>
-              </span>
+              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-stone">Tanggal</p>
+                <p className="truncate text-sm font-medium text-ink">{formatDate(project.date)}</p>
+              </div>
             )}
             {days !== null && days >= 0 && (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
-                <Icon name="heart" className="h-3 w-3 text-rose" /> H-{days}
-              </span>
+              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-stone">Menuju hari-H</p>
+                <p className="text-sm font-medium text-ink">H-{days}</p>
+              </div>
             )}
-          </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
             {project.venue && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
-                <Icon name="location" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.venue}</span>
-              </span>
+              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-stone">Venue</p>
+                <p className="truncate text-sm font-medium text-ink">{project.venue}</p>
+              </div>
             )}
             {project.client_wa && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
-                <Icon name="phone" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.client_wa}</span>
-              </span>
-            )}
-            {(project.mb?.updated_at || project.updated_at) && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone/70">
-                <Icon name="clock" className="h-3 w-3 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span>
-              </span>
+              <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-stone">WA Client</p>
+                <p className="truncate text-sm font-medium text-ink">{project.client_wa}</p>
+              </div>
             )}
           </div>
+          {(project.mb?.updated_at || project.updated_at) && (
+            <p className="mt-1.5 text-xs text-stone/60">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</p>
+          )}
           {project.couple_mode && cd && (
             <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
               <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/25 px-3 py-1 text-[#7a5c30]"><Icon name="users" className="h-3 w-3" /> Mode isi bareng</span>
@@ -513,8 +516,8 @@ function ProjectDetail({ project, refresh, toastAdd }) {
         </Card>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-2 overflow-x-auto border-b border-ink/10 pb-px">
+      {/* Tabs — flex-wrap: tidak pernah terpotong di layar sempit */}
+      <div className="flex flex-wrap gap-1 border-b border-ink/10">
         {[
           ['ringkasan', 'clipboardCheck', 'Ringkasan'],
           ['referensi', 'images', 'Referensi'],
@@ -523,7 +526,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`-mb-px inline-flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm transition ${tab === id ? 'border-gold text-gold font-medium' : 'border-transparent text-stone hover:text-ink'}`}
+            className={`inline-flex items-center gap-1.5 rounded-t-xl border border-b-0 px-4 py-2.5 text-sm transition ${tab === id ? 'border-gold bg-white font-medium text-gold' : 'border-transparent text-stone hover:text-ink'}`}
           >
             <Icon name={icon} className="h-3.5 w-3.5" /> {label}
           </button>

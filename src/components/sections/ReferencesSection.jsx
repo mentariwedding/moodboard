@@ -89,7 +89,7 @@ export default function ReferencesSection({ data, update, uploadRef }) {
 <div>
         <p className="mb-1.5 text-sm font-medium text-ink">Galeri inspirasi — tap ❤️ untuk menandai yang disukai</p>
         <p className="mb-3 -mt-1 text-xs text-stone">Tidak punya foto? Cukup tandai gaya yang kamu suka — langsung masuk moodboard.</p>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           {INSPIRATION_GALLERY.map((g) => {
             const liked = (data.liked || []).includes(g.id)
             return (
