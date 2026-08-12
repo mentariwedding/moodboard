@@ -83,13 +83,19 @@ function SectionSummary({ id, s }) {
     add('Suasana', s.vibes)
     add('Kata kunci', s.keywords)
   } else if (id === 'colors') {
-    const swatches = (s.palette || []).map((c) => `<span style="background:${c}" class="inline-block h-3 w-3 rounded-full border border-ink/10"></span>`).join(' ')
     return (
       <div className="space-y-1 text-sm">
-        <p>Palet: <b>{s.paletteName || 'Custom'}</b> {swatches ? <span dangerouslySetInnerHTML={{ __html: swatches }} /> : null}</p>
+        <p className="flex flex-wrap items-center gap-1.5">
+          <span>Palet: <b>{s.paletteName || 'Custom'}</b></span>
+          <span className="flex flex-wrap items-center gap-1">
+            {(s.palette || []).map((c) => (
+              <span key={c} className="inline-block h-3 w-3 rounded-full border border-ink/10" style={{ background: c }} />
+            ))}
+          </span>
+        </p>
         {s.avoid?.filter(Boolean).length > 0 && (
-          <p className="inline-flex items-center gap-1">
-            <Icon name="avoid" className="h-3 w-3 text-rose" /> Hindari: {s.avoid.filter(Boolean).join(', ')}
+          <p className="inline-flex max-w-full items-center gap-1">
+            <Icon name="avoid" className="h-3 w-3 shrink-0 text-rose" /> <span className="break-words">Hindari: {s.avoid.filter(Boolean).join(', ')}</span>
           </p>
         )}
       </div>
@@ -975,7 +981,7 @@ export default function DashboardPage() {
             action={<Btn kind="gold" onClick={() => setShowCreate(true)}><Icon name="plus" className="h-3.5 w-3.5" /> Buat Proyek Pertama</Btn>}
           />
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+          <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             {/* Sidebar */}
             <aside className="space-y-3">
               <div className="relative">
