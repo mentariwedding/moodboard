@@ -370,8 +370,8 @@ function ProjectDetail({ project, refresh, toastAdd }) {
         </div>
       )}
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
+        <div className="min-w-0 flex-1">
+          <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-stone">
             <StatusBadge status={status} />
             {project.date && <span className="inline-flex items-center gap-1"><Icon name="calendar" className="h-3.5 w-3.5" /> {formatDate(project.date)}</span>}
@@ -488,7 +488,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-ink/10">
+      <div className="flex gap-2 overflow-x-auto border-b border-ink/10 pb-px">
         {[
           ['ringkasan', 'clipboardCheck', 'Ringkasan'],
           ['referensi', 'images', 'Referensi'],
@@ -497,7 +497,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`-mb-px inline-flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm transition ${tab === id ? 'border-gold text-gold font-medium' : 'border-transparent text-stone hover:text-ink'}`}
+            className={`-mb-px inline-flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm transition ${tab === id ? 'border-gold text-gold font-medium' : 'border-transparent text-stone hover:text-ink'}`}
           >
             <Icon name={icon} className="h-3.5 w-3.5" /> {label}
           </button>
@@ -907,8 +907,8 @@ export default function DashboardPage() {
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8">
-          <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-            <aside className="space-y-3">
+          <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
+            <aside className="min-w-0 space-y-3">
               <Skeleton className="h-9 w-full" />
               <div className="flex gap-1.5">
                 {[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-7 w-16 rounded-full" />)}
@@ -993,7 +993,7 @@ export default function DashboardPage() {
                     <button
                       key={p.token}
                       onClick={() => setSelected(p)}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${active ? 'border-gold bg-white shadow-soft' : 'border-ink/5 bg-white/70 hover:border-gold/40'}`}
+                      className={`w-full min-w-0 rounded-2xl border p-4 text-left transition ${active ? 'border-gold bg-white shadow-soft' : 'border-ink/5 bg-white/70 hover:border-gold/40'}`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <p className="truncate text-sm font-semibold text-ink">{p.couple || 'Tanpa nama'}</p>

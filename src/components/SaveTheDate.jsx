@@ -29,7 +29,7 @@ export default function SaveTheDate({ project, who, onStart }) {
             <Flourish />
           </div>
 
-          <p className="mx-auto mt-5 max-w-md break-words pb-1 font-script text-5xl leading-[1.25] text-gold-gradient sm:text-6xl">{names}</p>
+          <p className="mx-auto mt-6 max-w-md break-words px-2 pb-2 pt-1 font-script text-5xl leading-[1.35] text-gold-gradient sm:text-6xl">{names}</p>
 
           <p className="mt-5 text-xs uppercase tracking-[0.4em] text-gold">Save the Date</p>
           <p className="mt-2 font-display text-3xl text-ink">{date || project?.date ? formatDate(project.date) : 'Tanggal menyusul'}</p>

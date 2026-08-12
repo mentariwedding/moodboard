@@ -97,7 +97,7 @@ export default function CoupleLandingPage() {
           <p className="mt-4 px-2 text-[11px] uppercase tracking-[0.22em] text-gold sm:text-xs sm:tracking-[0.4em]">
             We&rsquo;re getting married
           </p>
-          <h1 className="mx-auto mt-3 max-w-2xl break-words pb-2 font-script text-5xl leading-[1.2] text-gold-gradient sm:text-7xl">
+          <h1 className="mx-auto mt-3 max-w-2xl break-words px-3 pb-3 pt-1 font-script text-5xl leading-[1.35] text-gold-gradient sm:text-7xl">
             {name}
           </h1>
           {date && (

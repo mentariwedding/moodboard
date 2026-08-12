@@ -68,7 +68,7 @@ export default function SubmittedScreen({ data, project, onBack }) {
           <Flourish />
         </div>
         <h1 className="mt-4 font-display text-4xl text-ink sm:text-5xl">Moodboard Terkirim ✨</h1>
-          <p className="mx-auto mt-2 max-w-md break-words pb-1 font-script text-3xl leading-[1.25] text-gold-gradient sm:text-4xl">{name || 'Kalian Berdua'}</p>
+          <p className="mx-auto mt-2 max-w-md break-words px-2 pb-2 pt-1 font-script text-3xl leading-[1.35] text-gold-gradient sm:text-4xl">{name || 'Kalian Berdua'}</p>
         <p className="mt-2 text-stone">
           Terima kasih sudah berbagi impian kalian
           {date && <> — moodboard untuk <b className="text-ink">{date}</b></>} sudah diterima tim Mentari Wedding.
@@ -84,7 +84,7 @@ export default function SubmittedScreen({ data, project, onBack }) {
           <p className="text-center text-xs uppercase tracking-[0.35em]" style={{ color: 'var(--accent)' }}>
             Our Wedding Moodboard
           </p>
-          <p className="mt-2 text-center font-script text-4xl text-gold-gradient">{name || project?.couple}</p>
+          <p className="mt-2 px-2 pb-2 pt-1 text-center font-script text-4xl leading-[1.35] text-gold-gradient">{name || project?.couple}</p>
           <p className="mt-1 text-center text-sm text-stone">{date}{couple.city ? ` · ${couple.city}` : ''}</p>
 
           {themeImgs.length > 0 && (
