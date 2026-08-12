@@ -378,23 +378,41 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 max-w-full flex-1">
           <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-stone">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm">
             <StatusBadge status={status} />
-            {project.date && <span className="inline-flex max-w-full items-center gap-1"><Icon name="calendar" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{formatDate(project.date)}</span></span>}
-            {days !== null && days >= 0 && <span className="inline-flex shrink-0 items-center gap-1"><Icon name="heart" className="h-3.5 w-3.5" /> H-{days}</span>}
+            {project.date && (
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
+                <Icon name="calendar" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{formatDate(project.date)}</span>
+              </span>
+            )}
+            {days !== null && days >= 0 && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
+                <Icon name="heart" className="h-3 w-3 text-rose" /> H-{days}
+              </span>
+            )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone">
-            {project.venue && <span className="inline-flex max-w-full items-center gap-1"><Icon name="location" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.venue}</span></span>}
-            {project.client_wa && <span className="inline-flex max-w-full items-center gap-1"><Icon name="phone" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.client_wa}</span></span>}
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
+            {project.venue && (
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
+                <Icon name="location" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.venue}</span>
+              </span>
+            )}
+            {project.client_wa && (
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
+                <Icon name="phone" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.client_wa}</span>
+              </span>
+            )}
             {(project.mb?.updated_at || project.updated_at) && (
-              <span className="inline-flex max-w-full items-center gap-1 text-stone/70"><Icon name="clock" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span></span>
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone/70">
+                <Icon name="clock" className="h-3 w-3 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span>
+              </span>
             )}
           </div>
           {project.couple_mode && cd && (
-            <div className="mt-2 flex flex-wrap gap-2 text-xs">
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
               <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/25 px-3 py-1 text-[#7a5c30]"><Icon name="users" className="h-3 w-3" /> Mode isi bareng</span>
-              <span className="rounded-full bg-cream px-3 py-1 text-stone">Mempelai 1: {progOne}%</span>
-              <span className="rounded-full bg-cream px-3 py-1 text-stone">Mempelai 2: {progTwo}%</span>
+              <span className="rounded-full bg-white/80 px-3 py-1 text-stone ring-1 ring-ink/5">Mempelai 1: {progOne}%</span>
+              <span className="rounded-full bg-white/80 px-3 py-1 text-stone ring-1 ring-ink/5">Mempelai 2: {progTwo}%</span>
             </div>
           )}
         </div>
