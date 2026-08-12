@@ -382,7 +382,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
             <StatusBadge status={status} />
           </div>
           {/* Info utama — grid 2 kolom berlabel, rapi di layar sempit */}
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {project.date && (
               <div className="rounded-xl border border-ink/5 bg-white/70 px-3 py-2">
                 <p className="text-[10px] uppercase tracking-wider text-stone">Tanggal</p>
@@ -517,7 +517,7 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       )}
 
       {/* Tabs — flex-wrap: tidak pernah terpotong di layar sempit */}
-      <div className="flex flex-wrap gap-1 border-b border-ink/10">
+      <div className="mt-5 flex flex-wrap gap-1 border-b border-ink/10">
         {[
           ['ringkasan', 'clipboardCheck', 'Ringkasan'],
           ['referensi', 'images', 'Referensi'],

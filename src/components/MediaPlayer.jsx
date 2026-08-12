@@ -43,14 +43,14 @@ export default function MediaPlayer({ url, title, variant = 'inline', size = 'md
         </button>
         {playing && (
           <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/60 p-4" onClick={() => setPlaying(false)}>
-            <div className="w-full max-w-md rounded-2xl bg-white p-4 shadow-soft" onClick={(e) => e.stopPropagation()}>
-              <div className="mb-2 flex items-center justify-between">
-                <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{title || 'Pratinjau'}</p>
-                <button onClick={() => setPlaying(false)} className="ml-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink/10 text-ink" aria-label="Tutup">
-                  <Icon name="xmark" className="h-3 w-3" />
+            <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-soft" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between border-b border-ink/5 px-4 py-3">
+                <p className="min-w-0 flex-1 truncate pr-2 text-sm font-medium text-ink">{title || 'Pratinjau'}</p>
+                <button onClick={() => setPlaying(false)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink/10 text-ink transition hover:bg-ink/20" aria-label="Tutup">
+                  <Icon name="xmark" className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <div className="overflow-hidden rounded-xl bg-black">
+              <div className="bg-black">
                 <EmbedFrame info={info} />
               </div>
             </div>
@@ -60,24 +60,34 @@ export default function MediaPlayer({ url, title, variant = 'inline', size = 'md
     )
   }
 
-  // ====== Inline ======
+  // ====== Inline (konsisten: buka modal, tidak mendorong layout) ======
   return (
-    <div className="inline-block">
+    <>
       <button
-        onClick={() => setPlaying(!playing)}
+        onClick={() => setPlaying(true)}
         className={`inline-flex items-center justify-center rounded-full text-white shadow transition hover:scale-105 ${sizeCls}`}
         style={{ background: 'var(--accent, #B08D57)' }}
-        title={playing ? 'Jeda' : `Putar ${title || 'lagu'}`}
-        aria-label={playing ? 'Jeda' : 'Putar'}
+        title={`Putar ${title || 'lagu'}`}
+        aria-label={`Putar ${title || 'lagu'}`}
       >
-        <Icon name={playing ? 'pause' : 'play'} className="h-3.5 w-3.5" />
+        <Icon name="play" className="h-3.5 w-3.5" />
       </button>
       {playing && (
-        <div className="mt-2 overflow-hidden rounded-xl bg-black shadow-card">
-          <EmbedFrame info={info} />
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/60 p-4" onClick={() => setPlaying(false)}>
+          <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-soft" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-ink/5 px-4 py-3">
+              <p className="min-w-0 flex-1 truncate pr-2 text-sm font-medium text-ink">{title || 'Pratinjau'}</p>
+              <button onClick={() => setPlaying(false)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink/10 text-ink transition hover:bg-ink/20" aria-label="Tutup">
+                <Icon name="xmark" className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <div className="bg-black">
+              <EmbedFrame info={info} />
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
 
