@@ -21,6 +21,36 @@ body {
   max-width: 100%;
 }
 
+/* Proteksi global anti-meluber (khususnya iPhone/layar sempit) */
+img,
+video,
+canvas,
+pre,
+table,
+svg {
+  max-width: 100%;
+}
+button,
+a,
+span,
+div,
+p,
+h1,
+h2,
+h3,
+h4 {
+  /* inline-flex & inline-block tidak bisa menyempit → jangan sampai meluber */
+  max-width: 100%;
+}
+input,
+textarea,
+select {
+  max-width: 100%;
+}
+#root {
+  overflow-x: clip;
+}
+
 body {
   @apply bg-ivory text-ink font-sans antialiased;
 }

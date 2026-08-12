@@ -173,8 +173,8 @@ function SectionSummary({ id, s }) {
         ) : (
           <p className="text-stone/70 italic">Belum diisi.</p>
         )}
-        {s.doNotPlay?.trim() && <p className="inline-flex items-center gap-1"><Icon name="avoid" className="h-3 w-3 text-rose" /> Jangan diputar: {s.doNotPlay}</p>}
-        {s.notes?.trim() && <p className="inline-flex items-center gap-1"><Icon name="music" className="h-3 w-3 text-gold" /> {s.notes}</p>}
+        {s.doNotPlay?.trim() && <p className="inline-flex max-w-full items-center gap-1"><Icon name="avoid" className="h-3 w-3 shrink-0 text-rose" /> <span className="break-words">Jangan diputar: {s.doNotPlay}</span></p>}
+        {s.notes?.trim() && <p className="inline-flex max-w-full items-center gap-1"><Icon name="music" className="h-3 w-3 shrink-0 text-gold" /> <span className="break-words">{s.notes}</span></p>}
       </div>
     )
   } else if (id === 'references') {
@@ -370,16 +370,16 @@ function ProjectDetail({ project, refresh, toastAdd }) {
         </div>
       )}
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 max-w-full flex-1">
           <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-stone">
             <StatusBadge status={status} />
-            {project.date && <span className="inline-flex items-center gap-1"><Icon name="calendar" className="h-3.5 w-3.5" /> {formatDate(project.date)}</span>}
-            {project.venue && <span className="inline-flex items-center gap-1"><Icon name="location" className="h-3.5 w-3.5" /> {project.venue}</span>}
+            {project.date && <span className="inline-flex max-w-full items-center gap-1"><Icon name="calendar" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{formatDate(project.date)}</span></span>}
+            {project.venue && <span className="inline-flex max-w-full items-center gap-1"><Icon name="location" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.venue}</span></span>}
             {days !== null && days >= 0 && <span className="inline-flex items-center gap-1"><Icon name="heart" className="h-3.5 w-3.5" /> H-{days}</span>}
-            {project.client_wa && <span className="inline-flex items-center gap-1"><Icon name="phone" className="h-3.5 w-3.5" /> {project.client_wa}</span>}
+            {project.client_wa && <span className="inline-flex max-w-full items-center gap-1"><Icon name="phone" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.client_wa}</span></span>}
             {(project.mb?.updated_at || project.updated_at) && (
-              <span className="inline-flex items-center gap-1 text-stone/70"><Icon name="clock" className="h-3.5 w-3.5" /> diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span>
+              <span className="inline-flex max-w-full items-center gap-1 text-stone/70"><Icon name="clock" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span></span>
             )}
           </div>
           {project.couple_mode && cd && (
@@ -676,14 +676,16 @@ function EditModal({ project, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-t-3xl bg-white p-6 shadow-soft sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
-        <p className="font-display text-2xl text-ink">Edit Proyek</p>
-        <p className="mt-1 text-sm text-stone">Perbarui data pasangan — link client tidak berubah.</p>
-        <div className="mt-5 space-y-4">
+      <div className="flex max-h-[92dvh] w-full max-w-md flex-col rounded-t-3xl bg-white shadow-soft sm:rounded-3xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="shrink-0 px-6 pt-6">
+          <p className="font-display text-2xl text-ink">Edit Proyek</p>
+          <p className="mt-1 text-sm text-stone">Perbarui data pasangan — link client tidak berubah.</p>
+        </div>
+        <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-2">
           <Field label="Nama pasangan *">
             <TextInput value={couple} onChange={(e) => setCouple(e.target.value)} />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Tanggal">
               <TextInput type="date" min={todayISO()} value={date} onChange={(e) => setDate(e.target.value)} />
             </Field>
@@ -699,11 +701,13 @@ function EditModal({ project, onClose, onSaved }) {
             {clientWa.trim() && !waNumber(clientWa) && <p className="mt-1 text-[11px] text-rose">Nomor tampak kurang lengkap — periksa kembali.</p>}
           </Field>
         </div>
-        <div className="mt-6 flex gap-3">
-          <Btn kind="outline" onClick={onClose} className="flex-1">Batal</Btn>
-          <Btn kind="gold" onClick={submit} disabled={busy} className="flex-1">
-            {busy ? <Spinner /> : 'Simpan'}
-          </Btn>
+        <div className="mt-auto shrink-0 border-t border-ink/5 px-6 py-4" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+          <div className="flex gap-3">
+            <Btn kind="outline" onClick={onClose} className="flex-1">Batal</Btn>
+            <Btn kind="gold" onClick={submit} disabled={busy} className="flex-1">
+              {busy ? <Spinner /> : 'Simpan'}
+            </Btn>
+          </div>
         </div>
       </div>
     </div>
@@ -734,10 +738,12 @@ function CreateModal({ onClose, onCreated }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-t-3xl bg-white p-6 shadow-soft sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
-        <p className="font-display text-2xl text-ink">Proyek Moodboard Baru</p>
-        <p className="mt-1 text-sm text-stone">Isi data pasangan — link otomatis dibuat setelah ini.</p>
-        <div className="mt-5 space-y-4">
+      <div className="flex max-h-[92dvh] w-full max-w-md flex-col rounded-t-3xl bg-white shadow-soft sm:rounded-3xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="shrink-0 px-6 pt-6">
+          <p className="font-display text-2xl text-ink">Proyek Moodboard Baru</p>
+          <p className="mt-1 text-sm text-stone">Isi data pasangan — link otomatis dibuat setelah ini.</p>
+        </div>
+        <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-2">
           <Field label="Nama pasangan *" hint="cth: Salsabila & Raka">
             <TextInput value={couple} onChange={(e) => setCouple(e.target.value)} placeholder="Nama mempelai" />
           </Field>
@@ -773,11 +779,13 @@ function CreateModal({ onClose, onCreated }) {
             </span>
           </button>
         </div>
-        <div className="mt-6 flex gap-3">
-          <Btn kind="outline" onClick={onClose} className="flex-1">Batal</Btn>
-          <Btn kind="gold" onClick={submit} disabled={busy} className="flex-1">
-            {busy ? <Spinner /> : 'Buat & dapatkan link'}
-          </Btn>
+        <div className="mt-auto shrink-0 border-t border-ink/5 px-6 py-4" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+          <div className="flex gap-3">
+            <Btn kind="outline" onClick={onClose} className="flex-1">Batal</Btn>
+            <Btn kind="gold" onClick={submit} disabled={busy} className="flex-1">
+              {busy ? <Spinner /> : 'Buat & dapatkan link'}
+            </Btn>
+          </div>
         </div>
       </div>
     </div>
