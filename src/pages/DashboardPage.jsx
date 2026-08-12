@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createProject, listProjects, deleteProject, updateProjectStatus, updateProject, subscribeProject, updateStaffNotes, isSetupError, addMoodboardComment, duplicateProject } from '../lib/api'
+import { createProject, listProjects, deleteProject, updateProjectStatus, updateProject, subscribeProject, isSetupError, duplicateProject } from '../lib/api'
 import { SECTIONS, THEMES, PRIORITY_ITEMS, FONT_STYLES, INSPIRATION_GALLERY } from '../lib/constants'
 import {
   computeProgress, copyText, formatDate, isSectionFilled, shareUrl, coupleUrl, waShareUrl, waReminderUrl, waNumber, linkType, timeAgo, todayISO, toCsv, downloadCsv, makeIcs, downloadIcs,
@@ -16,7 +16,6 @@ import Poster, { downloadPoster } from '../components/Poster'
 import QrModal from '../components/QrModal'
 import PrintSummary from '../components/PrintSummary'
 import Lightbox from '../components/Lightbox'
-import CommentsBlock from '../components/CommentsBlock'
 import MediaPlayer from '../components/MediaPlayer'
 
 const STATUS_META = {
@@ -210,26 +209,6 @@ function reminderInfo(p, fallback) {
 }
 
 /** Catatan/keputusan WO per seksi — tersimpan di localStorage per proyek. */
-function useStaffNotes(project) {
-  const token = project.token
-  const migrate = () => {
-    try { return JSON.parse(localStorage.getItem(`mw_notes_${token}`) || '{}') } catch { return {} }
-  }
-  const [notes, setNotes] = useState(() => project.staff_notes || migrate() || {})
-  useEffect(() => {
-    setNotes(project.staff_notes || migrate() || {})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, project.staff_notes])
-  const setNote = (sectionId, text) => {
-    setNotes((prev) => {
-      const next = { ...prev, [sectionId]: text }
-      updateStaffNotes(token, next)
-      return next
-    })
-  }
-  return [notes, setNote]
-}
-
 function ProjectDetail({ project, refresh, toastAdd }) {
   const [viewMode, setViewMode] = useState('gabungan') // gabungan | one | two
   const cdRaw = project.couple_mode ? project.mb?.data?.coupleData || {} : null
@@ -240,7 +219,6 @@ function ProjectDetail({ project, refresh, toastAdd }) {
   const waTarget = project.client_wa || data.couple?.wa || ''
   const url = shareUrl(token, undefined, project.couple)
   const [tab, setTab] = useState('ringkasan')
-  const [notes, setNote] = useStaffNotes(project)
   const [posterBusy, setPosterBusy] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -255,7 +233,6 @@ function ProjectDetail({ project, refresh, toastAdd }) {
   const hasAnySection = SECTIONS.some((sec) => isSectionFilled(data[sec.id]))
   const concept = hasAnySection ? data.references?._concept || generateConcept(data) : ''
 
-  const comments = project.mb?.comments || {}
   const cd = project.couple_mode ? project.mb?.data?.coupleData || {} : null
 
   const doPoster = async () => {
@@ -375,92 +352,92 @@ function ProjectDetail({ project, refresh, toastAdd }) {
           ))}
         </div>
       )}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 max-w-full flex-1">
-          <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
+      <div className="flex flex-col items-start gap-4">
+          <div className="w-full min-w-0">
+            <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
 
-          {/* Baris 1 — status & tanggal */}
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-            <StatusBadge status={status} />
-            {project.date && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
-                <Icon name="calendar" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{formatDate(project.date)}</span>
-              </span>
-            )}
-            {days !== null && days >= 0 && (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
-                <Icon name="heart" className="h-3 w-3 text-rose" /> H-{days}
-              </span>
-            )}
-          </div>
-
-          {/* Baris 2 — venue, WA, diperbarui */}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
-            {project.venue && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
-                <Icon name="location" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.venue}</span>
-              </span>
-            )}
-            {project.client_wa && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
-                <Icon name="phone" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.client_wa}</span>
-              </span>
-            )}
-            {(project.mb?.updated_at || project.updated_at) && (
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone/70">
-                <Icon name="clock" className="h-3 w-3 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span>
-              </span>
-            )}
-          </div>
-
-          {/* Mode bareng */}
-          {project.couple_mode && cd && (
-            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/25 px-3 py-1 text-[#7a5c30]"><Icon name="users" className="h-3 w-3" /> Mode isi bareng</span>
-              <span className="rounded-full bg-white/80 px-3 py-1 text-stone ring-1 ring-ink/5">Mempelai 1: {progOne}%</span>
-              <span className="rounded-full bg-white/80 px-3 py-1 text-stone ring-1 ring-ink/5">Mempelai 2: {progTwo}%</span>
+            {/* Baris 1 — status & tanggal */}
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+              <StatusBadge status={status} />
+              {project.date && (
+                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
+                  <Icon name="calendar" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{formatDate(project.date)}</span>
+                </span>
+              )}
+              {days !== null && days >= 0 && (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-xs text-stone">
+                  <Icon name="heart" className="h-3 w-3 text-rose" /> H-{days}
+                </span>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Tombol aksi — kanan atas, ukuran normal */}
-        <div className="flex w-full flex-wrap justify-start gap-1.5 sm:w-auto sm:max-w-none lg:justify-end">
-          <Btn kind="outline" size="sm" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
-          <Btn kind="gold" size="sm" onClick={() => {
-            if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
-            window.open(waShareUrl(token, project.couple, undefined, waTarget), '_blank')
-          }}><Icon name="wa" className="h-3.5 w-3.5" /> Kirim via WA</Btn>
-          {status !== 'submitted' && status !== 'done' && (
-            <Btn kind="outline" size="sm" onClick={() => {
-              const rem = reminderInfo(project, waTarget)
-              if (!waNumber(rem.number)) { toastAdd('Tidak ada nomor WA — isi di menu Edit dulu ya', 'info'); return }
-              window.open(waReminderUrl(token, project.couple, rem.number, rem.label), '_blank')
-            }}><Icon name="bell" className="h-3.5 w-3.5" /> Kirim Pengingat</Btn>
-          )}
-          <Btn kind="white" size="sm" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Unduh Poster'}</Btn>
-          <Btn kind="white" size="sm" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
-          <Btn kind="white" size="sm" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
-          <Btn kind="white" size="sm" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
-          <Btn kind="white" size="sm" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
-          <Btn kind="outline" size="sm" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
-          <Btn kind="white" size="sm" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
-          <Btn kind="white" size="sm" disabled={dupBusy} onClick={async () => {
-            if (!confirm('Duplikat proyek ini? Isian client TIDAK disalin — hanya data proyek & catatan WO.')) return
-            setDupBusy(true)
-            try {
-              const newToken = await duplicateProject(token)
-              await refresh()
-              toastAdd('Proyek duplikat dibuat!', 'copy')
-              setSelected((await listProjects()).find((x) => x.token === newToken) || null)
-            } catch (e) {
-              toastAdd('Gagal duplikat: ' + e.message, 'info')
-            } finally {
-              setDupBusy(false)
-            }
-          }}><Icon name="copy" className="h-3.5 w-3.5" /> {dupBusy ? 'Menduplikat…' : 'Duplikat'}</Btn>
-          <Btn kind="ghost" size="sm" className="text-rose" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
+            {/* Baris 2 — venue, WA, diperbarui */}
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
+              {project.venue && (
+                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
+                  <Icon name="location" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.venue}</span>
+                </span>
+              )}
+              {project.client_wa && (
+                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone">
+                  <Icon name="phone" className="h-3 w-3 shrink-0 text-gold" /> <span className="truncate">{project.client_wa}</span>
+                </span>
+              )}
+              {(project.mb?.updated_at || project.updated_at) && (
+                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink/5 bg-white/80 px-3 py-1 text-stone/70">
+                  <Icon name="clock" className="h-3 w-3 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span>
+                </span>
+              )}
+            </div>
+
+            {/* Mode bareng */}
+            {project.couple_mode && cd && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
+                <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/25 px-3 py-1 text-[#7a5c30]"><Icon name="users" className="h-3 w-3" /> Mode isi bareng</span>
+                <span className="rounded-full bg-white/80 px-3 py-1 text-stone ring-1 ring-ink/5">Mempelai 1: {progOne}%</span>
+                <span className="rounded-full bg-white/80 px-3 py-1 text-stone ring-1 ring-ink/5">Mempelai 2: {progTwo}%</span>
+              </div>
+            )}
+          </div>
+
+          {/* Tombol aksi — kanan atas, ukuran normal */}
+          <div className="grid w-full grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <Btn kind="outline" size="sm" className="w-full" onClick={() => { copyText(url); toastAdd('Link disalin!', 'copy') }}><Icon name="copy" className="h-3.5 w-3.5" /> Copy link</Btn>
+            <Btn kind="gold" size="sm" className="w-full" onClick={() => {
+              if (!waNumber(waTarget)) { toastAdd('Tidak ada nomor WA client — isi di menu Edit dulu ya', 'info'); return }
+              window.open(waShareUrl(token, project.couple, undefined, waTarget), '_blank')
+            }}><Icon name="wa" className="h-3.5 w-3.5" /> Kirim via WA</Btn>
+            {status !== 'submitted' && status !== 'done' && (
+              <Btn kind="outline" size="sm" className="w-full" onClick={() => {
+                const rem = reminderInfo(project, waTarget)
+                if (!waNumber(rem.number)) { toastAdd('Tidak ada nomor WA — isi di menu Edit dulu ya', 'info'); return }
+                window.open(waReminderUrl(token, project.couple, rem.number, rem.label), '_blank')
+              }}><Icon name="bell" className="h-3.5 w-3.5" /> Kirim Pengingat</Btn>
+            )}
+            <Btn kind="white" size="sm" className="w-full" onClick={doPoster} disabled={posterBusy}><Icon name="image" className="h-3.5 w-3.5" /> {posterBusy ? 'Membuat…' : 'Unduh Poster'}</Btn>
+            <Btn kind="white" size="sm" className="w-full" onClick={() => window.print()} title="Ringkasan A4 siap cetak / Save as PDF"><Icon name="print" className="h-3.5 w-3.5" /> Cetak / PDF</Btn>
+            <Btn kind="white" size="sm" className="w-full" onClick={doExportCsv} title="Unduh semua jawaban sebagai spreadsheet"><Icon name="sheet" className="h-3.5 w-3.5" /> Export CSV</Btn>
+            <Btn kind="white" size="sm" className="w-full" onClick={() => setQrOpen(true)}><Icon name="qrcode" className="h-3.5 w-3.5" /> QR Code</Btn>
+            <Btn kind="white" size="sm" className="w-full" onClick={doSaveCalendar} title="Simpan tanggal pernikahan ke kalender (ICS)"><Icon name="calendar" className="h-3.5 w-3.5" /> Simpan Kalender</Btn>
+            <Btn kind="outline" size="sm" className="w-full" onClick={() => window.open(coupleUrl(token, project.couple), '_blank')}><Icon name="heart" className="h-3.5 w-3.5" /> Halaman pasangan</Btn>
+            <Btn kind="white" size="sm" className="w-full" onClick={() => setEditOpen(true)}><Icon name="pen" className="h-3.5 w-3.5" /> Edit</Btn>
+            <Btn kind="white" size="sm" className="w-full" disabled={dupBusy} onClick={async () => {
+              if (!confirm('Duplikat proyek ini? Isian client TIDAK disalin — hanya data proyek & catatan WO.')) return
+              setDupBusy(true)
+              try {
+                const newToken = await duplicateProject(token)
+                await refresh()
+                toastAdd('Proyek duplikat dibuat!', 'copy')
+                setSelected((await listProjects()).find((x) => x.token === newToken) || null)
+              } catch (e) {
+                toastAdd('Gagal duplikat: ' + e.message, 'info')
+              } finally {
+                setDupBusy(false)
+              }
+            }}><Icon name="copy" className="h-3.5 w-3.5" /> {dupBusy ? 'Menduplikat…' : 'Duplikat'}</Btn>
+            <Btn kind="ghost" size="sm" className="w-full text-rose" onClick={() => { if (confirm('Hapus proyek ini?')) deleteProject(token).then(refresh) }}><Icon name="trash" className="h-3.5 w-3.5" /> Hapus</Btn>
+          </div>
         </div>
-      </div>
 
       {/* Link per mempelai (mode bareng) */}
       {project.couple_mode && (
@@ -548,37 +525,12 @@ function ProjectDetail({ project, refresh, toastAdd }) {
                     <Icon name={s.icon} className="h-3.5 w-3.5" />
                   </span>
                   {s.en}
-                  {(comments[s.id] || []).length > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-goldlight/30 px-2 py-0.5 text-[10px] font-semibold text-[#7a5c30]">
-                      <Icon name="comment" className="h-2.5 w-2.5" /> {(comments[s.id] || []).length}
-                    </span>
-                  )}
+
                 </p>
                 <span className="text-[11px] uppercase tracking-wider text-stone/60">{s.idn}</span>
               </div>
               <SectionSummary id={s.id} s={data[s.id]} />
-              {/* Catatan WO */}
-              <div className="mt-3 border-t border-dashed border-ink/10 pt-2.5">
-                <div className="flex items-center gap-1.5 text-[11px] font-medium text-stone">
-                  <Icon name="pen" className="h-3 w-3" /> Catatan WO {notes[s.id] ? <span className="text-gold">· ada catatan</span> : null}
-                </div>
-                <TextArea
-                  rows={2}
-                  value={notes[s.id] || ''}
-                  onChange={(e) => setNote(s.id, e.target.value)}
-                  placeholder="Tulis keputusan, budget, atau saran desain di sini…"
-                  className="mt-1.5 !text-xs"
-                />
-              </div>
-              <CommentsBlock
-                comments={comments[s.id] || []}
-                author="wo"
-                onAdd={async (t) => {
-                  await addMoodboardComment(token, s.id, t, 'wo')
-                  refresh()
-                }}
-                placeholder="Balas client / beri arahan…"
-              />
+
             </Card>
           ))}
         </div>
@@ -949,7 +901,7 @@ export default function DashboardPage() {
             <Skeleton className="h-10 w-32 rounded-full" />
           </div>
         </header>
-        <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8">
+        <main className="mx-auto w-full min-w-0 max-w-5xl px-4 py-8">
           <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             <aside className="min-w-0 space-y-3">
               <Skeleton className="h-9 w-full" />
@@ -974,7 +926,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-ivory">
       <header className="sticky top-0 z-40 border-b border-ink/5 bg-ivory/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:py-4">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:py-4">
           <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gold text-white shadow-soft sm:flex">
               <Icon name="brand" className="h-5 w-5" />

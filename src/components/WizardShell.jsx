@@ -2,7 +2,6 @@ import { useState, useRef } from 'react'
 import { SECTIONS, WIZARD_CHAPTERS, CHAPTER_OF_SECTION } from '../lib/constants'
 import { daysUntil, filledSections } from '../lib/utils'
 import { ProgressBar, Spinner } from './ui'
-import CommentsBlock from './CommentsBlock'
 import Icon from '../lib/icons'
 import useAccent from '../lib/useAccent'
 import useCountUp from '../lib/useCountUp'
@@ -43,8 +42,6 @@ export default function WizardShell({
   justSubmitted,
   uploadRef,
   who,
-  comments = {},
-  onAddComment = async () => {},
   autoSave = null,
 }) {
   const [step, setStep] = useState(0)
@@ -177,28 +174,52 @@ export default function WizardShell({
               </button>
             </div>
           </div>
-          {/* Jalan setapak perjalanan antar bab */}
-          <div className="mt-3">
-            <div className="flex items-center gap-1">
+          {/* Stepper 4 bab — perjalanan yang indah */}
+          <div className="mt-4">
+            <div className="flex items-center">
               {WIZARD_CHAPTERS.map((ch, i) => {
                 const chDone = chapterOf(step) > i
                 const chActive = chapterOf(step) === i
+                const firstSectionOfChapter = SECTIONS.findIndex((s) => CHAPTER_OF_SECTION[s.id] === i)
                 return (
-                  <div key={ch.id} className="flex flex-1 items-center gap-1">
-                    {i > 0 && <div className={`journey-line ${chDone ? 'done' : ''}`} />}
-                    <div className={`journey-step ${chDone ? 'done' : ''} ${chActive ? 'active' : ''}`}>
-                      <span className="journey-dot">
-                        <Icon name={chDone ? 'check' : ch.icon} className="h-3 w-3" />
+                  <div key={ch.id} className="flex flex-1 items-center">
+                    {i > 0 && (
+                      <div className={`mx-1 h-0.5 flex-1 rounded-full transition-all duration-500 sm:mx-2 ${chDone ? 'bg-gradient-to-r from-gold to-goldlight' : 'bg-ink/10'}`} />
+                    )}
+                    <button
+                      onClick={() => { setStep(firstSectionOfChapter); setTimeout(scrollTop, 30) }}
+                      title={ch.label}
+                      className="group flex flex-col items-center gap-1.5"
+                    >
+                      <span
+                        className={[
+                          'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300 sm:h-12 sm:w-12',
+                          chActive
+                            ? 'scale-110 border-gold bg-gradient-to-br from-gold to-goldlight text-white shadow-lg shadow-gold/30'
+                            : chDone
+                              ? 'border-gold/50 bg-goldlight/25 text-[#8a6a3a] group-hover:border-gold'
+                              : 'border-ink/15 bg-white text-stone/50 group-hover:border-gold/50 group-hover:text-gold',
+                        ].join(' ')}
+                      >
+                        {chDone ? (
+                          <Icon name="check" className="h-4 w-4 sm:h-5 sm:w-5" />
+                        ) : (
+                          <Icon name={ch.icon} className="h-4 w-4 sm:h-5 sm:w-5" />
+                        )}
                       </span>
-                      <span className="journey-label hidden sm:block">{ch.label}</span>
-                    </div>
+                      <span
+                        className={[
+                          'whitespace-nowrap text-[10px] font-medium transition-colors sm:text-xs',
+                          chActive ? 'text-gold' : chDone ? 'text-[#8a6a3a]' : 'text-stone/50',
+                        ].join(' ')}
+                      >
+                        {ch.label}
+                      </span>
+                    </button>
                   </div>
                 )
               })}
             </div>
-            <p className="mt-1.5 text-center text-[10px] uppercase tracking-[0.2em] text-stone sm:hidden">
-              {WIZARD_CHAPTERS[chapterOf(step)].label}
-            </p>
           </div>
         </div>
       </header>
@@ -206,44 +227,6 @@ export default function WizardShell({
       {/* Stepper + Content + Canvas */}
       <div className="mx-auto max-w-6xl px-4 xl:grid xl:grid-cols-[minmax(0,1fr)_310px] xl:gap-8">
         <div className="min-w-0">
-          <nav className="mx-auto max-w-3xl overflow-x-auto pt-4 pb-1 [scrollbar-width:none]">
-        <div className="flex w-max gap-1.5 pb-1">
-          {SECTIONS.map((s, i) => {
-            const done = filledSections({ [s.id]: data[s.id] }) > 0
-            const active = i === step
-            return (
-              <button
-                key={s.id}
-                onClick={() => {
-                  setStep(i)
-                  setTimeout(scrollTop, 30)
-                }}
-                title={s.en}
-                className={[
-                  'relative flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs whitespace-nowrap transition-all',
-                  active
-                    ? 'border-ink bg-ink text-ivory'
-                    : done
-                      ? 'border-gold/40 bg-goldlight/20 text-[#8a6a3a]'
-                      : 'border-ink/10 bg-white/60 text-stone hover:border-gold',
-                ].join(' ')}
-                style={active && accent ? { background: accent, borderColor: accent, color: 'var(--accent-text)' } : undefined}
-              >
-                {done ? (
-                  <Icon name="check" className="h-3 w-3" />
-                ) : (
-                  <Icon name={s.icon} className="h-3 w-3" />
-                )}
-                <span className="hidden sm:inline">{s.en}</span>
-                {(comments[s.id] || []).length > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-ivory bg-rose" title="Ada komentar" />
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </nav>
-
           {/* Content — key=step memicu animasi transisi tiap pindah seksi */}
           <main key={step} className="mx-auto max-w-3xl animate-[sectionIn_.35s_ease] pb-40 pt-6">
             <div className="mb-6 flex items-center gap-4">

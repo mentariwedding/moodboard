@@ -25,7 +25,6 @@ create table if not exists mw_projects (
     check (status in ('invited', 'partial', 'submitted', 'done')),
   couple_mode boolean not null default false, -- mode isi bareng: 2 link (mempelai 1 & 2)
   client_wa text not null default '',          -- nomor WA client (tujuan tombol Kirim via WA)
-  staff_notes jsonb not null default '{}'::jsonb, -- catatan/keputusan WO per seksi
   created_at timestamptz not null default now()
 );
 
@@ -36,7 +35,6 @@ create table if not exists mw_moodboards (
   data jsonb not null default '{}'::jsonb, -- semua jawaban client
   is_draft boolean not null default true,
   submitted_at timestamptz,
-  comments jsonb not null default '{}'::jsonb, -- komentar per seksi (WO <-> client)
   updated_at timestamptz not null default now()
 );
 
@@ -104,6 +102,3 @@ create policy "client delete own references" on storage.objects
     bucket_id = 'mw_references'
     and (storage.foldername(name))[1] = current_setting('request.headers', true)::json->>'x-project-token'
   );
-
--- Komentar per seksi (WO <-> client) — untuk database yang sudah dibuat sebelumnya
-ALTER TABLE mw_moodboards ADD COLUMN IF NOT EXISTS comments jsonb NOT NULL DEFAULT '{}'::jsonb;

@@ -44,17 +44,11 @@ export function buildDemoData() {
       status: 'invited',
       couple_mode: true,
       client_wa: '081234567890',
-      staff_notes: { decor: 'Ganti bunga jadi artificial — budget', look: 'Gaun coba warna ivory' },
     },
     moodboard: {
       data: { coupleData: { one, two } },
       is_draft: true,
       submitted_at: null,
-      comments: {
-        colors: [
-          { id: 'c1', author: 'wo', text: 'Halo! Boleh kami sarankan palet yang lebih hangat? Kalau kurang sreg, biarkan dulu ya — nanti kita diskusi saat rapat desain.', at: new Date(Date.now() - 3600000).toISOString() },
-        ],
-      },
     },
   }
 }
@@ -69,7 +63,6 @@ export function seedDemoIfNeeded() {
     ...demo.project,
     created: new Date(Date.now() - 86400000).toISOString(),
     data: demo.moodboard.data,
-    comments: demo.moodboard.comments,
     is_draft: demo.moodboard.is_draft,
     submitted_at: demo.moodboard.submitted_at,
     updated_at: new Date().toISOString(),
@@ -96,7 +89,7 @@ export async function seedDemoToSupabase() {
         data: demo.moodboard.data,
         is_draft: demo.moodboard.is_draft,
         submitted_at: demo.moodboard.submitted_at,
-        comments: demo.moodboard.comments,
+  
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'project_id' },

@@ -80,7 +80,7 @@ export async function listProjects() {
     try {
       const { data: mbs, error: mbErr } = await supabase
         .from(TABLE('moodboards'))
-        .select('project_id, is_draft, data, comments, submitted_at, updated_at')
+        .select('project_id, is_draft, data, submitted_at, updated_at')
       if (mbErr) throw mbErr
       ;(mbs || []).forEach((r) => { mbByToken[r.project_id] = r })
     } catch (e) {
@@ -93,7 +93,7 @@ export async function listProjects() {
     return out
   }
   return Object.values(demoProjects())
-    .map((p) => ({ ...p, mb: p.data ? { data: p.data, is_draft: p.is_draft ?? true, comments: p.comments || {} } : null }))
+    .map((p) => ({ ...p, mb: p.data ? { data: p.data, is_draft: p.is_draft ?? true } : null }))
     .sort((a, b) => (b.created || '').localeCompare(a.created || ''))
 }
 
@@ -136,20 +136,6 @@ export async function updateProject(token, patch) {
   }
 }
 
-export async function updateStaffNotes(token, notes) {
-  if (isSupabaseConfigured) {
-    const { error } = await supabase.from(TABLE('projects')).update({ staff_notes: notes }).eq('token', token)
-    if (error) { logger.error('API error', error); throw new Error(error.message) }
-    return
-  }
-  const p = demoProjects()[token]
-  if (p) {
-    p.staff_notes = notes
-    demoSave(p)
-  }
-  try { localStorage.setItem(`mw_notes_${token}`, JSON.stringify(notes)) } catch {}
-}
-
 export async function duplicateProject(token) {
   const p = await getProjectByToken(token)
   if (!p) throw new Error('Proyek tidak ditemukan')
@@ -161,10 +147,6 @@ export async function duplicateProject(token) {
     coupleMode: p.couple_mode,
     clientWa: p.client_wa,
   })
-  // Salin catatan WO (staff notes) ke proyek baru — isian client TIDAK disalin
-  if (p.staff_notes && Object.keys(p.staff_notes).length) {
-    await updateStaffNotes(newToken, p.staff_notes)
-  }
   return newToken
 }
 
@@ -259,37 +241,11 @@ export async function loadMoodboard(token) {
       is_draft: p.is_draft,
       submitted_at: p.submitted_at,
       updated_at: p.updated_at,
-      comments: p.comments || {},
+      
     }
   }
   return null
 }
-
-/** Tambah komentar WO/client pada satu seksi moodboard. */
-export async function addMoodboardComment(token, sectionId, text, author) {
-  const row = await loadMoodboard(token)
-  const comments = row?.comments || {}
-  const list = comments[sectionId] || []
-  const next = {
-    ...comments,
-    [sectionId]: [...list, { id: uid(), author, text, at: new Date().toISOString() }],
-  }
-  if (isSupabaseConfigured) {
-    const client = clientSupabaseWithToken(token)
-    const { error } = await client.from(TABLE('moodboards')).update({ comments: next }).eq('project_id', token)
-    if (error) { logger.error('API error', error); throw new Error(error.message) }
-  } else {
-    const p = demoProjects()[token]
-    if (p) {
-      p.comments = next
-      demoSave(p)
-    }
-  }
-  return next
-}
-
-// Cache channel per token — cegah dobel subscribe & error "cannot add callbacks after subscribe()"
-const subscribeCache = new Map()
 
 export async function subscribeProject(token, cb) {
   if (!isSupabaseConfigured || !supabase) return () => {}

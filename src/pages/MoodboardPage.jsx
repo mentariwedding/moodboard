@@ -8,7 +8,6 @@ import {
   uploadReferenceImage,
   publicUrl,
   isSetupError,
-  addMoodboardComment,
 } from '../lib/api'
 import { EMPTY_DATA, SECTIONS } from '../lib/constants'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -58,7 +57,6 @@ export default function MoodboardPage() {
   const [project, setProject] = useState(null)
   const [mb, setMb] = useState(null) // row moodboard yang tersimpan (untuk envelope coupleData)
   const [data, setData] = useState(EMPTY_DATA)
-  const [comments, setComments] = useState({})
   const [status, setStatus] = useState('loading')
   const [submitted, setSubmitted] = useState(false)
   const [splash, setSplash] = useState(false) // Save-the-Date Card saat mulai dari nol
@@ -107,7 +105,6 @@ export default function MoodboardPage() {
           setSubmitted(row?.is_draft === false)
           setSplash(!row?.data || filledSections(row.data) === 0)
         }
-        setComments(row?.comments || {})
         setClosed(p.status === 'done')
         dirtyRef.current = false
         setStatus('ready')
@@ -199,11 +196,6 @@ export default function MoodboardPage() {
     }
   }
 
-  const handleAddComment = async (sectionId, text) => {
-    const next = await addMoodboardComment(token, sectionId, text, 'client')
-    setComments(next)
-  }
-
   const uploadRef = async (dataUrl) => {
     const ref = await uploadReferenceImage(token, dataUrl)
     if (!isSupabaseConfigured) return { demo: true, dataUrl }
@@ -279,8 +271,6 @@ export default function MoodboardPage() {
       justSubmitted={submitted}
       uploadRef={uploadRef}
       who={who}
-      comments={comments}
-      onAddComment={handleAddComment}
       autoSave={{ state: autoSaveState, label: autoSaveLabel }}
     />
   )
