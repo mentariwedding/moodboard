@@ -246,7 +246,6 @@ function ProjectDetail({ project, refresh, toastAdd }) {
   const [editOpen, setEditOpen] = useState(false)
   const [lightbox, setLightbox] = useState(null) // index foto yang dibuka
   const [dupBusy, setDupBusy] = useState(false)
-  const [layoutIssues, setLayoutIssues] = useState(null)
 
   const refs = data.references || {}
   const themeIds = data.vibe?.themes || []
@@ -807,6 +806,7 @@ export default function DashboardPage() {
   const [search, setSearch] = useState('')
   const [session, setSession] = useState(isSupabaseConfigured ? undefined : 'demo')
   const [demoAuthedState, setDemoAuthedState] = useState(() => (isSupabaseConfigured ? true : demoAuthed()))
+  const [layoutIssues, setLayoutIssues] = useState(null)
   const [setupNeeded, setSetupNeeded] = useState(false)
   const [setupDetail, setSetupDetail] = useState('')
   const { toasts, add, remove } = useToast()
