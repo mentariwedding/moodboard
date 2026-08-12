@@ -378,11 +378,13 @@ function ProjectDetail({ project, refresh, toastAdd }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 max-w-full flex-1">
           <p className="break-words pr-2 font-display text-2xl text-ink sm:text-3xl">{project.couple || 'Tanpa nama'}</p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-stone">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-stone">
             <StatusBadge status={status} />
             {project.date && <span className="inline-flex max-w-full items-center gap-1"><Icon name="calendar" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{formatDate(project.date)}</span></span>}
+            {days !== null && days >= 0 && <span className="inline-flex shrink-0 items-center gap-1"><Icon name="heart" className="h-3.5 w-3.5" /> H-{days}</span>}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone">
             {project.venue && <span className="inline-flex max-w-full items-center gap-1"><Icon name="location" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.venue}</span></span>}
-            {days !== null && days >= 0 && <span className="inline-flex items-center gap-1"><Icon name="heart" className="h-3.5 w-3.5" /> H-{days}</span>}
             {project.client_wa && <span className="inline-flex max-w-full items-center gap-1"><Icon name="phone" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{project.client_wa}</span></span>}
             {(project.mb?.updated_at || project.updated_at) && (
               <span className="inline-flex max-w-full items-center gap-1 text-stone/70"><Icon name="clock" className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">diperbarui {timeAgo(project.mb?.updated_at || project.updated_at)}</span></span>
@@ -999,12 +1001,12 @@ export default function DashboardPage() {
                 <TextInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari pasangan / venue…" className="!py-2 pl-9 text-xs" />
                 <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone/60" />
               </div>
-              <div className="flex gap-1.5 overflow-x-auto pb-1">
+              <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap">
                 {[['all', 'Semua'], ['invited', 'Menunggu'], ['partial', 'Diisi'], ['submitted', 'Selesai'], ['done', 'Diproses']].map(([k, label]) => (
                   <button
                     key={k}
                     onClick={() => setFilter(k)}
-                    className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs transition ${filter === k ? 'border-ink bg-ink text-ivory' : 'border-ink/15 bg-white text-stone hover:border-gold'}`}
+                    className={`rounded-full border px-3 py-1.5 text-xs transition ${filter === k ? 'border-ink bg-ink text-ivory' : 'border-ink/15 bg-white text-stone hover:border-gold'}`}
                   >
                     {label} {counts[k] || ''}
                   </button>
@@ -1026,10 +1028,19 @@ export default function DashboardPage() {
                       </div>
                       <div className="mt-1.5 flex items-center justify-between gap-2">
                         <span className="truncate text-xs text-stone">{p.date ? formatDate(p.date) : '— tanggal belum diisi'}</span>
-                        {d && <span className="text-xs font-semibold text-gold">{computeProgress(d)}%</span>}
+                        {d && <span className="shrink-0 text-xs font-semibold text-gold">{computeProgress(d)}%</span>}
                       </div>
-                      {p.couple_mode && <p className="mt-1 inline-flex items-center gap-1 text-[10px] text-gold"><Icon name="users" className="h-2.5 w-2.5" /> isi bareng</p>}
-                      {(p.mb?.updated_at || p.updated_at) && <p className="mt-0.5 text-[10px] text-stone/60">diperbarui {timeAgo(p.mb?.updated_at || p.updated_at)}</p>}
+                      {d && (
+                        <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-cream">
+                          <div className="h-full rounded-full bg-gradient-to-r from-gold to-goldlight" style={{ width: `${computeProgress(d)}%` }} />
+                        </div>
+                      )}
+                      <div className="mt-1.5 flex items-center justify-between gap-2">
+                        {p.couple_mode ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] text-gold"><Icon name="users" className="h-2.5 w-2.5" /> isi bareng</span>
+                        ) : <span />}
+                        {(p.mb?.updated_at || p.updated_at) && <span className="truncate text-[10px] text-stone/60">diperbarui {timeAgo(p.mb?.updated_at || p.updated_at)}</span>}
+                      </div>
                     </button>
                   )
                 })}
