@@ -1012,7 +1012,8 @@ export default function DashboardPage() {
         ) : (
           <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             {/* Sidebar */}
-            <aside className="min-w-0 space-y-3">
+            <aside className="min-w-0 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pb-4">
+              <div className="space-y-3 rounded-2xl border border-ink/5 bg-white/80 p-4 shadow-card backdrop-blur">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone">Daftar Proyek</p>
                 <button
@@ -1046,7 +1047,7 @@ export default function DashboardPage() {
                     <button
                       key={p.token}
                       onClick={() => setSelected(p)}
-                      className={`w-full min-w-0 rounded-2xl border p-4 text-left transition ${active ? 'border-gold bg-white shadow-soft' : 'border-ink/5 bg-white/70 hover:border-gold/40'}`}
+                      className={`w-full min-w-0 rounded-xl border p-3 text-left transition ${active ? 'border-gold bg-white shadow-soft' : 'border-ink/5 bg-white/70 hover:border-gold/40'}`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <p className="truncate text-sm font-semibold text-ink">{p.couple || 'Tanpa nama'}</p>
@@ -1071,6 +1072,7 @@ export default function DashboardPage() {
                   )
                 })}
                 {filtered.length === 0 && <p className="py-6 text-center text-sm text-stone">Tidak ada proyek di filter ini.</p>}
+              </div>
               </div>
             </aside>
 
